@@ -1,0 +1,325 @@
+<!--这是个用户卡片，内含背景，头像展示，以及登录、注册，进入个人主页的按钮-->
+<template>
+    <div class="user-card">
+        <div class="background">
+            <img :src="userInfo.bgUrl" alt="" height="100%" width="100%">
+        </div>
+        <div class="avatar">
+            <el-avatar :size="80" :src="userInfo.avatarUrl"></el-avatar>
+        </div>
+        <div class="user-content">
+            <el-row style="height: 60px">{{userInfo.nickname}}</el-row>
+            <el-row>
+                <el-button type="primary" round @click="dialog.loginDialog = true" v-show = "button.loginButton">登录</el-button>
+                <el-button round @click="dialog.registerDialog = true" v-show = "button.registerButton">注册</el-button>
+                <el-button type="primary" plain @click="myInfo" v-show = "button.personalInformationButton" icon="el-icon-s-custom">个人主页</el-button>
+                <el-button type="info" plain @click="logout" v-show = "button.logoutButton">登出</el-button>
+            </el-row>
+        </div>
+
+        <!--显示登录弹窗-->
+        <el-dialog
+                center
+                custom-class="cardDialog"
+                :lock-scroll="false"
+                title="登录"
+                :visible.sync="dialog.loginDialog">
+            <el-form :model="loginForm" status-icon :rules="rules" ref="loginForm">
+                <el-form-item label="用户名" :label-width="formLabelWidth" prop="username" required>
+                    <el-input v-model="loginForm.username" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="密码" :label-width="formLabelWidth" prop="password" required>
+                    <el-input v-model="loginForm.password" autocomplete="new-password" show-password></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialog.loginDialog = false">取 消</el-button>
+                <el-button type="primary" @click="submitLoginForm('loginForm')">确 定</el-button>
+            </div>
+        </el-dialog>
+
+        <!--显示注册弹窗-->
+        <el-dialog
+                custom-class="cardDialog"
+                :lock-scroll="false"
+                title="注册"
+                :visible.sync="dialog.registerDialog">
+            <el-form :model="registerForm" status-icon :rules="rules" ref="registerForm">
+                <el-form-item label="用户名" :label-width="formLabelWidth" prop="username" required>
+                    <el-input v-model="registerForm.username" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="密码" :label-width="formLabelWidth" prop="password" required>
+                    <el-input v-model="registerForm.password" autocomplete="new-password" show-password></el-input>
+                </el-form-item>
+                <el-form-item label="确认密码" :label-width="formLabelWidth" prop="checkPassword" required>
+                    <el-input v-model="registerForm.checkPassword" autocomplete="new-password" show-password></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialog.registerDialog = false">取 消</el-button>
+                <el-button type="primary" @click="submitRegisterForm('registerForm')">确 定</el-button>
+            </div>
+        </el-dialog>
+    </div>
+</template>
+
+<script>
+    import http from '@/http/http';
+    export default {
+        name: "LoginMiniView",
+        data(){
+            const validateUsername = (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('用户名不能为空'));
+                }else if(value.length < 9 || value.length >15){
+                    return callback(new Error('用户名长度应处于9~15之间'));
+                } else {
+                    callback();
+                }
+            };
+            const validatePassword = (rule, value, callback) => {
+                if (value === '') {
+                    return callback(new Error('请输入密码'));
+                } else if(value.length < 9 || value.length >15){
+                    return callback(new Error('密码长度应处于9~15之间'));
+                } else {
+                    callback();
+                }
+            };
+            const checkPassword = (rule, value, callback) => {
+                if (value === ''){
+                    return callback(new Error('确认密码不能为空'));
+                }else if (value !== this.registerForm.password) {
+                    return callback(new Error('密码不一致'));
+                } else {
+                    callback();
+                }
+            };
+            return{
+                userInfo:{
+                    nickname:'请先登录',
+                    bgUrl:'https://r2.touchgal.net/2023/01/cad0a147c5154256.jpg',
+                    avatarUrl:'https://cdn.jsdelivr.net/gh/madokaying/PicturesBed/GitImages/202403190911616.jpg',
+                },
+                dialog:{
+                    loginDialog:false,
+                    registerDialog:false,
+                },
+                button:{
+                    loginButton:true,
+                    registerButton:true,
+                    personalInformationButton:false,
+                    logoutButton:false,
+                },
+                formLabelWidth: '80px',
+                loginForm: {
+                    username: '',
+                    password: '',
+                },
+                registerForm: {
+                    username: '',
+                    password: '',
+                    checkPassword:'',
+                },
+                rules:{
+                    username:[
+                        {validator:validateUsername,trigger:'blur'}
+                    ],
+                    password:[
+                        {validator:validatePassword,trigger:'blur'}
+                    ],
+                    checkPassword:[
+                        {validator:checkPassword,trigger:'blur'}
+                    ]
+                }
+            }
+        },
+        methods:{
+            submitLoginForm(form){
+                this.$refs[form].validate((valid) => {
+                    if (valid) {
+                        http.post("/user/login",this.loginForm).then(res =>{
+                            if (res.data.code === 200){
+                                //获取并存入用户token和UID
+                                this.$store.commit('setTokenAndUID',res);
+                                http.post('/user/getUserInfoByUID?UID=' + JSON.parse(localStorage.getItem('userInfo')).UID).then(response => {
+                                    if (response.data.code === 200){
+                                        //存入剩余需要用到的信息
+                                        this.$store.commit('setUserInfo',response);
+                                        //同步localStorage数据到当前的data内
+                                        this.dataSync();
+                                        this.changeButton();
+                                        this.$message({
+                                            message:'欢迎回来,' + this.userInfo.nickname,
+                                            type:'success',
+                                            duration:'2000',
+                                        });
+                                        //隐藏登录窗口
+                                        this.dialog.loginDialog = false;
+                                        //刷新页面，调度mounted让localStorage内的数据及时刷新到页面上
+                                        // location.reload()
+                                    }
+                                })
+                            }
+                            else {
+                                this.$message.error('账号或密码不正确');
+                            }
+                            //清空输入框
+                            this.$refs[form].resetFields();
+                        })
+                    } else {
+                        this.$message.error('输入不合法，请重新输入');
+                        return false;
+                    }
+                });
+
+            },
+            submitRegisterForm(form){
+                this.$refs[form].validate((valid) => {
+                    if (valid) {
+                        http.post("/user/register",this.registerForm).then(res =>{
+                            if (res.data.code === 200){
+                                this.$message({
+                                    message: '注册成功',
+                                    type: 'success'
+                                });
+                                this.dialog.registerDialog = false;
+                            }
+                            else {
+                                this.$message.error('注册失败，若有疑问请联系管理员');
+                            }
+                            //清空输入框
+                            this.$refs[form].resetFields();
+                        })
+                    } else {
+                        this.$message.error('输入不合法，请重新输入');
+                        return false;
+                    }
+                });
+            },
+            logout(){
+                this.$confirm('真的要登出吗?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning',
+                    lockScroll:false
+                }).then(() => {
+                    http.post('/user/logout').then(res => {
+                        if (res.data.code === 200) {
+                            //清空localStorage
+                            localStorage.clear();
+                            this.$message({
+                                message: '登出成功',
+                                type: 'success'
+                            });
+                            location.reload();
+                        }
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消登出'
+                    });
+                });
+            },
+            myInfo(){
+              this.$router.push({name:'myInfo',params:{units:'personalInfo'}})
+            },
+            //将用户的信息同步到data内
+            dataSync(){
+                this.userInfo.nickname = JSON.parse(localStorage.getItem('userInfo')).nickname;
+                this.userInfo.avatarUrl = JSON.parse(localStorage.getItem('userInfo')).avatar;
+                this.userInfo.bgUrl = JSON.parse(localStorage.getItem('userInfo')).background;
+            },
+            //切换按钮显示
+            changeButton(){
+                this.button = {
+                    loginButton: !this.button.loginButton,
+                    registerButton: !this.button.registerButton,
+                    personalInformationButton: !this.button.personalInformationButton,
+                    logoutButton: !this.button.logoutButton,
+                };
+            }
+        },
+        mounted() {
+            // localStorage.clear();
+            /*让nickname显示正确的用户昵称,存在vuex内的数据会因为刷新而重置，
+            localStorage,localStorage内的数据为永久储存
+            sessionStorage，让数据只在单次会话内存在*/
+            //查询localStorage内是否有用户信息
+            if (localStorage.getItem('userInfo') != null){
+                //判断用户登录是否合法(主要判断token是否过期了)
+                http.post('/user/testToken').then(res =>{
+                    if (res.data.code === 200){
+                        //同步用户信息到data
+                        this.dataSync();
+                        //显示欢迎提示
+                        this.$message({
+                            message:'欢迎回来,' + this.userInfo.nickname,
+                            type:'success',
+                            duration:'2000',
+                        })
+                        //切换按钮显示
+                        this.changeButton();
+                    }
+                    //若登录已过期或者token非法，则清空localStorage并给出提示
+                    else if (res.data.code === 401){
+                        this.$message.error('登录非法或者已过期，请重新登录');
+                        localStorage.clear();
+                    }
+                })
+            }else{
+                return;
+            }
+        }
+    }
+</script>
+
+<style scoped>
+    .user-card {
+        height: 400px;
+        border-radius: 20px;
+        margin: 15px;
+        background-color: #F2F6FC;
+        /*将超出部分隐藏，让图片超出圆角的部分隐藏*/
+        overflow: hidden;
+        /* 阴影
+         第一个参数是x轴阴影段长度
+        第二个参数是y轴阴影段长度
+        第三个参数是往四周阴影段长度
+        第四个参数是阴影段颜色*/
+        box-shadow: 2px 2px 6px rgba(0,0,0,0.5);
+    }
+
+    .background {
+        /*设置定位，方便设置z-index让头像部分能够显示于最上层*/
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        z-index: 0;
+        margin-bottom: -40px;
+    }
+
+    .avatar {
+        position: relative;
+        justify-content: center;
+        height: 0;
+        z-index: 2;
+    }
+
+    .user-content {
+        position: relative;
+        height: 200px;
+        z-index: 0;
+        padding-top: 40px;
+    }
+</style>
+<style>
+    /*设置登录/注册dialog的样式*/
+    .el-dialog.cardDialog {
+        border-radius: 30px;
+        line-height: 20px;
+        width: 30%;
+    }
+
+</style>

@@ -1,0 +1,72 @@
+{
+  "id": "4531152",
+  "name": "图书管理系统",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "3826359",
+      "name": "06-书立丛",
+      "font_class": "book-collection",
+      "unicode": "e617",
+      "unicode_decimal": 58903
+    },
+    {
+      "icon_id": "3833182",
+      "name": "收藏",
+      "font_class": "collection2",
+      "unicode": "e604",
+      "unicode_decimal": 58884
+    },
+    {
+      "icon_id": "5150276",
+      "name": "收藏",
+      "font_class": "collection1",
+      "unicode": "e666",
+      "unicode_decimal": 58982
+    },
+    {
+      "icon_id": "10235504",
+      "name": "暂无帖子",
+      "font_class": "posts",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "11920682",
+      "name": "专业书籍",
+      "font_class": "book",
+      "unicode": "e777",
+      "unicode_decimal": 59255
+    },
+    {
+      "icon_id": "40121461",
+      "name": "在线用户",
+      "font_class": "user",
+      "unicode": "e615",
+      "unicode_decimal": 58901
+    },
+    {
+      "icon_id": "4719762",
+      "name": "消息通知",
+      "font_class": "notice",
+      "unicode": "e6b1",
+      "unicode_decimal": 59057
+    },
+    {
+      "icon_id": "40121438",
+      "name": "表单构建",
+      "font_class": "menu",
+      "unicode": "e611",
+      "unicode_decimal": 58897
+    },
+    {
+      "icon_id": "40121458",
+      "name": "问答详情",
+      "font_class": "comment",
+      "unicode": "e613",
+      "unicode_decimal": 58899
+    }
+  ]
+}

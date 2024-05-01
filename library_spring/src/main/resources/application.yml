@@ -1,0 +1,68 @@
+#这是配置文件
+
+#spring配置
+spring:
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  application:
+    name: library_spring
+  #数据库驱动配置
+  datasource:
+    #数据库的用户名和密码
+    username: root
+    password: root
+    #驱动名称
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    #数据库连接的url
+    url: jdbc:mysql://localhost:3306/library_web_db?characterEncoding=utf-8&serverTimezone=UTC
+  redis:
+    host: localhost
+    port: 6379
+  #配置servlet部分上传文件的设置
+  servlet:
+    multipart:
+      #配置单个文件上传大小的限制,设置值为-1时则是不限制大小
+      max-file-size: 20MB
+      #配置单次文件上传大小的限制（一次上传多个文件）
+      max-request-size: 100MB
+
+#设置服务器运行端口
+server:
+  port: 8080
+
+#mybatis配置
+#mybatis:
+#  configuration:
+#    #开启mybatis驼峰命名自动映射开关,即数据库内命名为a_camel，而Pojo实体类命名为aCamel时，sql语句操作会自动映射到对应的属性上，否则会因为命名不一样导致返回的结果为null
+#    map-underscore-to-camel-case: true
+
+#spring的事务管理日志
+logging:
+  level:
+    org.springframework.jdbc.support.JdbcTransactionManager: debug
+
+#mybatis-plus设置
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field: flag # 全局逻辑删除的实体字段名(since 3.3.0,配置后可以忽略不配置步骤2)
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
+#      设置全局主键自增，若是不设置，将采用雪花算法给id赋值，避免重复
+      id-type: auto
+      #设置前缀，若table名为tb-user，bean名为user，可以在这统一加上前缀识别
+#      table-prefix: tb_
+  configuration:
+    #设置通过控制台输出日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:com/ljh/library_spring/mapper/*.xml
+
+#设置文件上传路径
+upload:
+  path: D:/code/MyWorks/LibraryManagementSystem/library_spring/src/main/resources/static/img/ #这里是储存路径
+  src: http://localhost:8080/static/img/ #这是前端访问路径的prefixed
+
+#shiro配置
+#shiro:
+#  loginUrl:
