@@ -1,6 +1,7 @@
 package com.ljh.library_spring.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.ljh.library_spring.entity.PasswordForm;
 import com.ljh.library_spring.entity.Result;
 import com.ljh.library_spring.entity.User;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,4 +21,6 @@ public interface UserService {
     User getUserInfoByUID(Integer userId);
     //存放图片并修改数据库中的路径(头像)
     Result setUserImg(MultipartFile file,Integer UID,String fileType,String changeType);
+    //修改密码
+    Result changePassword(PasswordForm passwordForm);
 }

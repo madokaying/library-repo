@@ -2,6 +2,7 @@ package com.ljh.library_spring.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.ljh.library_spring.entity.PasswordForm;
 import com.ljh.library_spring.entity.Result;
 import com.ljh.library_spring.entity.User;
 import com.ljh.library_spring.mapper.UserMapper;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -64,6 +66,9 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+    /**
+     * 根据UID获取用户信息
+     * */
     public User getUserInfoByUID(Integer userId){
         LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(User::getId,userId);
@@ -71,6 +76,9 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    /**
+     * 设置用户头像或者背景
+     * */
     @Transactional
     public Result setUserImg(MultipartFile file,Integer UID,String fileType,String changeType){
         if (file.isEmpty()){
@@ -124,5 +132,26 @@ public class UserServiceImpl implements UserService {
         }
         return new Result(401,"文件上传出现异常");
 
+    }
+
+    /**
+    * 更新密码
+    * */
+    public Result changePassword(PasswordForm passwordForm) {
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        //对比用户的密码，正确则执行更新密码操作，不正确则返回错误信息
+        Integer UID = Integer.valueOf(passwordForm.getUid());
+        User user = userMapper.selectById(UID);
+        if (bCryptPasswordEncoder.matches(passwordForm.getOldPassword(),user.getPassword())){
+            //将新密码加密用于存储
+            String encodeNewPassword = bCryptPasswordEncoder.encode(passwordForm.getNewPassword());
+            LambdaUpdateWrapper<User> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+            lambdaUpdateWrapper.set(User::getPassword,encodeNewPassword)
+                    .eq(User::getId,UID);
+            userMapper.update(lambdaUpdateWrapper);
+            return new Result(200,"密码更新成功,请重新登录");
+        } else {
+            return new Result(401,"密码错误，请确保原密码无误再提交修改");
+        }
     }
 }

@@ -3,9 +3,6 @@
     <div class="book-card" @mouseover="changeImgSize = true" @mouseleave="changeImgSize = false">
         <div class="cover">
             <el-image :src="book.bookCover" alt="封面" fit="cover" class="img" :class="{'changeSize':changeImgSize}">
-                <div slot="error" class="image-slot">
-                    <i class="el-icon-picture-outline"></i>
-                </div>
             </el-image>
         </div>
         <div class="book-information">

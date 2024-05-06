@@ -41,6 +41,8 @@ public class User extends Model<User> {
     private String background;
     //个性签名
     private String signature;
+    //电话号码
+    private String phoneNumber;
     //最多可借书数
     private Integer maxBorrow;
     //待付金额

@@ -153,7 +153,7 @@
                 <el-col :span="18">
 <!--                    默认展示个人的信息，表现为form表单的信息，实现展示信息的同时方便在已有信息基础上修改-->
                     <div v-if="units === 'personalInfo'">
-                        555
+                        <personal-info></personal-info>
                     </div>
                 </el-col>
             </el-row>
@@ -199,12 +199,14 @@
 <script>
     import http from "@/http/http";
     import { VueCropper }  from 'vue-cropper'
+    import PersonalInfo from "@/components/element_components/menu/PersonalInfo";
 
     export default {
         name: "MyInfo",
         props:['units'],
         components:{
             VueCropper,
+            PersonalInfo,
         },
         data(){
             return{
@@ -511,7 +513,7 @@
         border-radius: 10px;
         overflow: hidden;
         margin: 0 15px 10px 15px;
-        background-color: rgba(64, 189, 160, 0.1);
+        background-color: rgba(255, 241, 116, 0.2);
         backdrop-filter: blur(1px);
         padding: 0;
         line-height: 0;

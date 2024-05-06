@@ -78,9 +78,9 @@ export default new Vuex.Store({
     actions: {
         syncBookInfo(context,url){
             http.get(url).then(res => {
-                 setTimeout(() => {
+                 // setTimeout(() => {
                     context.commit('setBookInfo', res);
-                 }, 1000);
+                 // }, 1000);
             })
         },
         //异步同步用户信息部分由于使用了localStorage，前端调用时会因为localStorage还没存完数据就继续执行后续代码，故这部分代码暂且弃用，异步部分在前端来实现

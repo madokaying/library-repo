@@ -3,7 +3,7 @@
         <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal"
                  style="width: 100vw;background: rgba(255,255,255,.1);backdrop-filter: blur(20px);border-top: 1px solid rgba(255,255,255,.5);
                  z-index: 200;position: fixed;border-left: 1px solid rgba(255,255,255,0.5);">
-            <el-menu-item index="0" @click="home" class="cancel-hover-underline">
+            <el-menu-item index="0" @click="toHome" class="cancel-hover-underline">
                 <el-image
                         style="height: 55px"
                         :src="url"

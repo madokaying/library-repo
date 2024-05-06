@@ -5,7 +5,7 @@
             <img :src="userInfo.bgUrl" alt="" height="100%" width="100%">
         </div>
         <div class="avatar">
-            <el-avatar :size="80" :src="userInfo.avatarUrl"></el-avatar>
+            <el-avatar :size="80" :fit="userInfo.fit" :src="userInfo.avatarUrl"></el-avatar>
         </div>
         <div class="user-content">
             <el-row style="height: 60px">{{userInfo.nickname}}</el-row>
@@ -39,6 +39,7 @@
         </el-dialog>
 
         <!--显示注册弹窗-->
+<!--        TODO 输入用户名时查询数据库是否已存在该用户，存在则不允许注册,添加检测规则，不能输入!空格等非法符号-->
         <el-dialog
                 custom-class="cardDialog"
                 :lock-scroll="false"
@@ -65,6 +66,8 @@
 
 <script>
     import http from '@/http/http';
+    import userBackground from '@/assets/images/defaultBackground.jpg';
+    import userAvatar from '@/assets/images/7cac2dee-91ce-48c4-b1df-fcdac4940b3b.jpeg';
     export default {
         name: "LoginMiniView",
         data(){
@@ -98,8 +101,9 @@
             return{
                 userInfo:{
                     nickname:'请先登录',
-                    bgUrl:'https://r2.touchgal.net/2023/01/cad0a147c5154256.jpg',
-                    avatarUrl:'https://cdn.jsdelivr.net/gh/madokaying/PicturesBed/GitImages/202403190911616.jpg',
+                    bgUrl:userBackground,
+                    avatarUrl:userAvatar,
+                    fit:'scale-down',
                 },
                 dialog:{
                     loginDialog:false,

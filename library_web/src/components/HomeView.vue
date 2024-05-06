@@ -26,7 +26,7 @@
         },
         data(){
             return{
-                asideWidth:"150px"
+                asideWidth:"10%",
             }
         },
         methods:{
@@ -72,7 +72,7 @@
         width: 100%;
 
         /*设置背景图片*/
-        background-image: url("https://cdn.jsdelivr.net/gh/madokaying/PicturesBed/GitImages/202404131540570.jpg");
+        background-image: url('../assets/images/20240413153917.jpg');
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
