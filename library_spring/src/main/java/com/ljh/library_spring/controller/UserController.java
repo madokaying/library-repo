@@ -52,4 +52,10 @@ public class UserController{
     public Result changePassword(@RequestBody PasswordForm passwordForm){
         return userService.changePassword(passwordForm);
     }
+
+    //用户修改自身信息
+    @PostMapping("/changeInfoByUser")
+    public Result changeInfoByUser(@RequestBody User user){
+        return userService.changeInfoByUser(user);
+    }
 }

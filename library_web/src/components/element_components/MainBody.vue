@@ -5,6 +5,9 @@
                 <div v-if="units === 'homePage'">
                     <show-card-view></show-card-view>
                 </div>
+                <div v-else-if="units === 'bookDetail'">
+                    <book-detail :bookId="bookId"></book-detail>
+                </div>
             </el-col>
             <el-col :span="7">
                 <user-card-view></user-card-view>
@@ -21,13 +24,19 @@
     import UserCardView from "@/components/element_components/card/UserCardView";
     import SearchCard from "@/components/element_components/card/SearchCard";
     import ShowCardView from "@/components/element_components/ShowCardView";
+    import BookDetail from "@/components/element_components/BookDetail";
+
     export default {
         name: "MainBody",
-        props:['units'],
+        props:[
+            'units',
+            'bookId',
+        ],
         components:{
             UserCardView,
             SearchCard,
             ShowCardView,
+            BookDetail,
         },
     }
 </script>

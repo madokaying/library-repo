@@ -140,18 +140,33 @@ public class UserServiceImpl implements UserService {
     public Result changePassword(PasswordForm passwordForm) {
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
         //对比用户的密码，正确则执行更新密码操作，不正确则返回错误信息
-        Integer UID = Integer.valueOf(passwordForm.getUid());
-        User user = userMapper.selectById(UID);
+        User user = userMapper.selectById(passwordForm.getUid());
         if (bCryptPasswordEncoder.matches(passwordForm.getOldPassword(),user.getPassword())){
             //将新密码加密用于存储
             String encodeNewPassword = bCryptPasswordEncoder.encode(passwordForm.getNewPassword());
             LambdaUpdateWrapper<User> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
             lambdaUpdateWrapper.set(User::getPassword,encodeNewPassword)
-                    .eq(User::getId,UID);
+                    .eq(User::getId,passwordForm.getUid());
             userMapper.update(lambdaUpdateWrapper);
             return new Result(200,"密码更新成功,请重新登录");
         } else {
             return new Result(401,"密码错误，请确保原密码无误再提交修改");
         }
+    }
+
+    /**
+    * 用户自身修改用户信息（只能修改自己的昵称，签名和邮箱）
+    * */
+    public Result changeInfoByUser(User user) {
+        LambdaUpdateWrapper<User> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+        lambdaUpdateWrapper.set(User::getNickname,user.getNickname())
+                .set(User::getSignature,user.getSignature())
+                .set(User::getEmail,user.getEmail())
+                .eq(User::getId,user.getId());
+        //当数据修改成功，即影响数据库的数据量等于一
+        if (userMapper.update(lambdaUpdateWrapper) == 1){
+            return new Result(200,"数据修改成功");
+        }
+        return new Result(401,"数据修改失败，请联系管理员解决");
     }
 }

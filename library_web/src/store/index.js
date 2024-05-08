@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import http from '@/http/http'
+import http from '@/utils/http'
 import { Loading } from 'element-ui';
 
 
@@ -76,14 +76,15 @@ export default new Vuex.Store({
     },
     // 操作异步操作mutation
     actions: {
-        syncBookInfo(context,url){
-            http.get(url).then(res => {
-                 // setTimeout(() => {
-                    context.commit('setBookInfo', res);
-                 // }, 1000);
-            })
+        async syncBookInfo(context,url){
+            try {
+                const res = await http.get(url);
+                context.commit('setBookInfo', res);
+            } catch (error) {
+                console.error('Failed to fetch data:', error);
+            }
         },
-        //异步同步用户信息部分由于使用了localStorage，前端调用时会因为localStorage还没存完数据就继续执行后续代码，故这部分代码暂且弃用，异步部分在前端来实现
+        //异步同步用户信息
         syncUserInfo(context){
             let UID = JSON.parse(localStorage.getItem('userInfo')).UID;
             let url = '/user/getUserInfoByUID?UID=' + UID;

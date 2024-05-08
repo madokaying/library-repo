@@ -12,10 +12,12 @@
         <div>
             <!--分页功能-->
             <el-pagination
+                    style="padding-bottom: 15px"
                     background
                     layout="prev, pager, next"
                     :page-size=pageSize
                     :total=this.$store.state.bookInfo.total
+                    hide-on-single-page=true
                     @current-change="getPageNum">
             </el-pagination>
         </div>
@@ -31,15 +33,15 @@
         },
         data(){
             return{
-                pageSize:16,
+                pageSize:12,
             }
         },
         methods:{
             getPageNum(currentPage){
-                //返回当前页的书籍信息，默认每页显示16本图书信息
+                //返回当前页的书籍信息，默认每页显示pageSize本图书信息
                 let url = "/book/getBooksList?currentPage=" + currentPage + "&pageSize=" + this.pageSize;
                 this.$store.dispatch('syncBookInfo',url);
-            }
+            },
         },
         mounted() {
             //异步访问数据库中的数据,并赋值给vuex
@@ -49,5 +51,9 @@
 </script>
 
 <style scoped>
+
+</style>
+
+<style>
 
 </style>

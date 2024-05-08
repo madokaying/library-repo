@@ -16,7 +16,7 @@ const routes = [
         redirect:'/mainBody/homePage'
     },
     {
-        path: '/mainBody/:units',
+        path: '/mainBody/:units/:bookId',
         name: 'mainBody',
         component:() => import('@/components/element_components/MainBody'),
         props:true,//不声明props:true的话传参无效
@@ -37,7 +37,13 @@ const routes = [
 ]
 
 const router = new VueRouter({
-  routes
+  routes,
+//页面跳转显示在顶部
+    scrollBehavior (to, from, savedPosition) {
+        if (savedPosition) {
+            return savedPosition
+        } else {
+            return { x: 0, y: 0 } } }
 })
 
 // 全局前置守卫

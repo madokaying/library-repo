@@ -2,7 +2,7 @@
 //让axios请求头每次都携带token
 
 import axios from 'axios';
-import store from '@/store/index'
+import store from '@/store'
 
 const instance = axios.create({
     baseURL: 'http://localhost:8080',

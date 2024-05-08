@@ -1,9 +1,11 @@
 <template>
     <div class="personal-info-wrapper">
+<!--        TODO 添加验证规则，长度不能超过数据库设置的长度，邮箱需符合格式-->
         <el-form
                 :model="personalInfoForm"
                 :label-position="formStyle.labelPosition"
                 :label-width="formStyle.labelWidth"
+                :rules="rules"
                 status-icon
                 ref="editPersonalInfoForm">
             <el-form-item label="昵称" prop="nickname" required>
@@ -25,7 +27,7 @@
                     <el-descriptions-item label="可借书数">{{otherInfo.maxBorrow}}</el-descriptions-item>
                     <el-descriptions-item label="待付款">{{otherInfo.needToPay}}</el-descriptions-item>
                     <el-descriptions-item label="备注">
-                        <span v-if="otherInfo.role === '未实名用户'">请先持身份证线下进行实名操作，以便享受借书等服务</span>
+                        <span v-if="otherInfo.role === '未实名用户'">尚未实名，请先持身份证线下进行实名操作，以便享受借书等服务</span>
                         <span v-else>已实名</span>
                     </el-descriptions-item>
                     <el-descriptions-item label="状态">
@@ -62,7 +64,8 @@
 </template>
 
 <script>
-    import http from "@/http/http";
+    import http from "@/utils/http";
+    import {getAndSyncUserInfo} from '@/utils/getAndSyncUserInfo'
 
     export default {
         name: "PersonalInfo",
@@ -85,6 +88,32 @@
                     callback();
                 }
             };
+            const checkNickname = (rule, value, callback) => {
+                if (value === ''){
+                    return callback(new Error('昵称不能为空'));
+                }else if (value.length > 12) {
+                    return callback(new Error('昵称长度不能大于12'));
+                } else {
+                    callback();
+                }
+            };
+            const checkSignature = (rule, value, callback) => {
+                if (value.length > 64) {
+                    return callback(new Error('签名长度不能大于64'));
+                } else {
+                    callback();
+                }
+            };
+            const checkEmail = (rule, value, callback) => {
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if (value.length > 64) {
+                    return callback(new Error('邮箱长度不能大于64'));
+                } else if (!emailRegex.test(value)){
+                    return callback(new Error('请输入正确的邮箱地址'));
+                } else {
+                    callback();
+                }
+            };
             return{
                 formStyle:{
                     labelPosition:'right',
@@ -94,12 +123,13 @@
                     nickname:JSON.parse(localStorage.getItem('userInfo')).nickname,
                     signature:JSON.parse(localStorage.getItem('userInfo')).signature,
                     email:JSON.parse(localStorage.getItem('userInfo')).email,
+                    id:parseInt(JSON.parse(localStorage.getItem('userInfo')).UID),
                 },
                 passwordForm:{
                     oldPassword:'',
                     newPassword:'',
                     confirmPassword:'',
-                    uid:JSON.parse(localStorage.getItem('userInfo')).UID,
+                    uid:parseInt(JSON.parse(localStorage.getItem('userInfo')).UID),
                 },
                 otherInfo:{
                     role:JSON.parse(localStorage.getItem('userInfo')).role,
@@ -118,13 +148,23 @@
                     ],
                     confirmPassword:[
                         {validator:checkPassword,trigger:'blur'}
-                    ]
+                    ],
+                    nickname: [
+                        {validator:checkNickname,trigger:'blur'}
+                    ],
+                    signature: [
+                        {validator:checkSignature,trigger:'blur'}
+                    ],
+                    email: [
+                        {validator:checkEmail,trigger:'blur'}
+                    ],
                 },
             }
         },
         methods:{
-          changePassword(){
-              this.$refs['editPasswordForm'].validate((valid) => {
+            //修改密码
+            changePassword(){
+                this.$refs['editPasswordForm'].validate((valid) => {
                   if (valid) {
                       // 修改成功则登出要求重新登录
                       http.post("/user/changePassword",this.passwordForm).then(res =>{
@@ -156,7 +196,36 @@
                       return false;
                   }
               })
-          }
+            },
+            //提交修改
+            submit(){
+                this.$refs['editPersonalInfoForm'].validate((valid) => {
+                    if (valid) {
+                        //修改用户数据
+                        http.post("/user/changeInfoByUser",this.personalInfoForm).then(res =>{
+                            if (res.data.code === 200){
+                                //同步用户数据
+                                getAndSyncUserInfo(this,'修改成功','同步数据失败');
+                            }else {
+                                this.$message({
+                                    message:res.data.msg,
+                                    type:'error',
+                                    duration:'2000',
+                                });
+                            }
+                        })
+                    } else {
+                        this.$message.error('输入不合法，请重新输入');
+                        return false;
+                    }
+                })
+            },
+            //同步数据
+            syncData(){
+                this.personalInfoForm.nickname = JSON.parse(localStorage.getItem('userInfo')).nickname;
+                this.personalInfoForm.signature= JSON.parse(localStorage.getItem('userInfo')).signature;
+                this.personalInfoForm.email = JSON.parse(localStorage.getItem('userInfo')).email;
+            },
         },
     }
 </script>

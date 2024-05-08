@@ -1,6 +1,6 @@
 <!--书本的展示卡片，用于显示书本信息-->
 <template>
-    <div class="book-card" @mouseover="changeImgSize = true" @mouseleave="changeImgSize = false">
+    <div class="book-card" @mouseover="changeImgSize = true" @mouseleave="changeImgSize = false" @click="bookDetail">
         <div class="cover">
             <el-image :src="book.bookCover" alt="封面" fit="cover" class="img" :class="{'changeSize':changeImgSize}">
             </el-image>
@@ -30,6 +30,14 @@
             return{
                 changeImgSize:false,
             }
+        },
+        methods:{
+            bookDetail(){
+                this.$router.push({
+                    name:'mainBody',
+                    params:{units:'bookDetail',bookId:this.book.bookId},
+                });
+            },
         }
     }
 </script>
@@ -39,7 +47,7 @@
         height: 300px;
         border-radius: 10px;
         overflow: hidden;
-        margin: 10px;
+        margin: 6px;
         background-color: #F2F6FC;
         /*border: 3px solid hotpink;*/
     }

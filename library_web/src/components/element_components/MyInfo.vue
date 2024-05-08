@@ -53,9 +53,7 @@
             <el-row>
 <!--        TODO 用户可选选项-->
                 <el-col :span="6">
-<!--                    TODO 不搞动态权限了，这里依据用户的角色来显示自己的操作列表-->
 <!--                    通用部分-->
-<!--                    TODO 基础数据展示,这里把数据写死了，后续记得改成动态的-->
                     <div class="common-data">
                         <div style="line-height: 18px">
                             <table style="width: 100%">
@@ -197,13 +195,16 @@
 </template>
 
 <script>
-    import http from "@/http/http";
+    import http from "@/utils/http";
     import { VueCropper }  from 'vue-cropper'
     import PersonalInfo from "@/components/element_components/menu/PersonalInfo";
+    import {getAndSyncUserInfo} from '@/utils/getAndSyncUserInfo'
 
     export default {
         name: "MyInfo",
-        props:['units'],
+        props:[
+            'units',
+        ],
         components:{
             VueCropper,
             PersonalInfo,
@@ -272,18 +273,7 @@
                     let url = '/user/setUserImg/' + this.options.changeType;
                     http.post(url,formData).then(response => {
                         if (response.data.code === 200) {
-                            http.post('/user/getUserInfoByUID?UID=' + JSON.parse(localStorage.getItem('userInfo')).UID).then(response => {
-                                if (response.data.code === 200) {
-                                    //同步用户信息
-                                    this.$store.commit('setUserInfo', response);
-                                    this.syncData();
-                                    this.$message({
-                                        message:'上传成功',
-                                        type:'success',
-                                        duration:'2000',
-                                    });
-                                }
-                            });
+                            getAndSyncUserInfo(this,'上传成功','上传失败');
                             this.dialog.uploadDialog = false;
                         }else {
                             this.$message.error(response.data.data.msg);
@@ -389,6 +379,7 @@
 
 <style scoped>
     .my-pic-info {
+        position: relative;
         border-radius: 10px;
         height: 500px;
         overflow: hidden;
@@ -399,8 +390,9 @@
     }
 
     .my-background {
-        position: relative;
+        position: absolute;
         z-index: 0;
+        width: 100%;
         height: 380px;
     }
 
@@ -419,10 +411,10 @@
     }
 
     .my-avatar {
-        position: relative;
+        position: absolute;
         display: inline-block;
-        top: -70px;
-        left: -420px;
+        top: 310px;
+        left: 40px;
         padding: 5px;
         background-color: white;
         height: 140px;
@@ -432,9 +424,10 @@
     }
 
     .my-info {
-        position: relative;
-        height: 120px;
-        top: -144px;
+        position: absolute;
+        width: 100%;
+        height: 115px;
+        top: 385px;
         /*background-color: #ffb6dc;*/
         background-color: #cbddf8;
     }
@@ -442,7 +435,7 @@
     .my-nickname {
         position: absolute;
         top: 25px;
-        left: 240px;
+        left: 210px;
         font-size: 30px;
         font-family: "楷体";
     }
@@ -450,7 +443,7 @@
     .my-signature {
         position: absolute;
         top: 50px;
-        left: 240px;
+        left: 210px;
         background-color: rgba(203,221,236,.9);
         border-radius: 3px;
         padding: 2px;
@@ -472,8 +465,8 @@
 
     .my-role {
         position: absolute;
-        bottom: 20px;
-        left: 80px;
+        bottom: 15px;
+        left: 40px;
     }
 
     .show-change-avatar-tips {

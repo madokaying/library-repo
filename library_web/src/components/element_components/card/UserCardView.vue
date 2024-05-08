@@ -5,11 +5,13 @@
             <img :src="userInfo.bgUrl" alt="" height="100%" width="100%">
         </div>
         <div class="avatar">
-            <el-avatar :size="80" :fit="userInfo.fit" :src="userInfo.avatarUrl"></el-avatar>
+            <el-avatar :size="100" :fit="userInfo.fit" :src="userInfo.avatarUrl"></el-avatar>
         </div>
         <div class="user-content">
-            <el-row style="height: 60px">{{userInfo.nickname}}</el-row>
-            <el-row>
+            <el-row style="top: 70px">
+                <span style="font-size: 20px">{{userInfo.nickname}}</span>
+            </el-row>
+            <el-row style="top: 100px">
                 <el-button type="primary" round @click="dialog.loginDialog = true" v-show = "button.loginButton">登录</el-button>
                 <el-button round @click="dialog.registerDialog = true" v-show = "button.registerButton">注册</el-button>
                 <el-button type="primary" plain @click="myInfo" v-show = "button.personalInformationButton" icon="el-icon-s-custom">个人主页</el-button>
@@ -65,7 +67,7 @@
 </template>
 
 <script>
-    import http from '@/http/http';
+    import http from '@/utils/http';
     import userBackground from '@/assets/images/defaultBackground.jpg';
     import userAvatar from '@/assets/images/7cac2dee-91ce-48c4-b1df-fcdac4940b3b.jpeg';
     export default {
@@ -281,6 +283,7 @@
 
 <style scoped>
     .user-card {
+        position: relative;
         height: 400px;
         border-radius: 20px;
         margin: 15px;
@@ -297,25 +300,28 @@
 
     .background {
         /*设置定位，方便设置z-index让头像部分能够显示于最上层*/
-        position: relative;
+        position: absolute;
+        width: 100%;
         height: 200px;
         overflow: hidden;
         z-index: 0;
-        margin-bottom: -40px;
     }
 
     .avatar {
-        position: relative;
+        position: absolute;
         justify-content: center;
+        top: 150px;
+        width: 100%;
         height: 0;
         z-index: 2;
     }
 
     .user-content {
-        position: relative;
+        position: absolute;
+        width: 100%;
         height: 200px;
         z-index: 0;
-        padding-top: 40px;
+        top: 200px;
     }
 </style>
 <style>

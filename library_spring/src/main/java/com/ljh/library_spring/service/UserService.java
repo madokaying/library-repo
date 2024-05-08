@@ -23,4 +23,6 @@ public interface UserService {
     Result setUserImg(MultipartFile file,Integer UID,String fileType,String changeType);
     //修改密码
     Result changePassword(PasswordForm passwordForm);
+    //用户修改自身信息
+    Result changeInfoByUser(User user);
 }

@@ -16,13 +16,13 @@
 </template>
 
 <script>
+    import logo from '@/assets/images/logo.png'
     export default {
         name: "HeaderMenu",
         data(){
             return{
                 // url内放的是el-menu内第一个图片的地址，最好用来放logo
-                url:'https://cdn.jsdelivr.net/gh/madokaying/PicturesBed/GitImages/202403191440918.png',
-                url1:'https://cdn.jsdelivr.net/gh/madokaying/PicturesBed/GitImages/202403190911616.jpg',
+                url:logo,
                 fit:'scale-down'
             }
         },

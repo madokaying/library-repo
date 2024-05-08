@@ -18,8 +18,13 @@ public class BookController {
     //返回书的数据，并返回到result的data中
     @GetMapping("/getBooksList")
 //    @PreAuthorize("hasAnyAuthority('system:book:list')")
-    public Result getBooksList(@RequestParam(defaultValue = "")String bookName,@RequestParam(defaultValue = "1") Integer currentPage, @RequestParam(defaultValue = "16") Integer pageSize){
+    public Result getBooksList(@RequestParam(defaultValue = "")String bookName,@RequestParam(defaultValue = "1") Integer currentPage, @RequestParam(defaultValue = "12") Integer pageSize){
         Page page = bookService.getBooksList(bookName,currentPage,pageSize);
         return new Result(200,page);
+    }
+
+    @PostMapping("/getBookDetailById")
+    public Result getBookDetailById(Integer bookId){
+        return bookService.getBookDetailById(bookId);
     }
 }

@@ -11,6 +11,9 @@
             </el-container>
             <el-footer>
 <!--                TODO 页脚，目前考虑放管理员相关信息，比如电话邮箱之类的，方便用户咨询，后续有可以考虑参考其他网站放点别的链接-->
+                友情链接
+                <br>
+                管理员联系方式：123@gmail.com
             </el-footer>
         </el-container>
     </div>
@@ -26,7 +29,7 @@
         },
         data(){
             return{
-                asideWidth:"10%",
+                asideWidth:"8%",
             }
         },
         methods:{
@@ -43,7 +46,7 @@
         background-color: white;
         color: #333;
         text-align: center;
-        line-height: 100px;
+        line-height: 25px;
     }
 
     .el-aside {
@@ -56,8 +59,9 @@
     .el-main {
         background-color: transparent;
         color: #333;
+        min-height: 700px !important;
         text-align: center;
-        line-height: 160px;
+        line-height: 25px;
         padding: 0;
     }
 
