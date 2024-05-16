@@ -48,7 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                  * permitAll是无论登录不登陆都能访问
                  * 。anyRequest().authenticated()是其它请求任意认证用户均可访问
                  */
-                .antMatchers("/book/getBooksList").permitAll()
+                .antMatchers("/book/**").permitAll()
                 .antMatchers("/user/register").permitAll()
                 .antMatchers("/static/**").permitAll()
                 .antMatchers("/user/login").anonymous()

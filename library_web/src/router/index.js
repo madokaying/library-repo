@@ -13,37 +13,44 @@ VueRouter.prototype.push = function push(location) {
 const routes = [
     {
         path: '/',
-        redirect:'/mainBody/homePage'
+        redirect: '/mainBody/homePage'
     },
     {
-        path: '/mainBody/:units/:bookId',
+        path: '/mainBody/:units',
         name: 'mainBody',
-        component:() => import('@/components/element_components/MainBody'),
-        props:true,//不声明props:true的话传参无效
+        component: () => import('@/components/element_components/MainBody'),
+        props: true,//不声明props:true的话传参无效
     },
     {
-      path:'/showCardView',//配置访问路径
-      name:'showCardView',//名字
-      //配合<router-link to = "/xx">和<router-view>
-      component:() => import('@/components/element_components/ShowCardView')//导入view，在vue中用
+        path: '/showCardView',//配置访问路径
+        name: 'showCardView',//名字
+        //配合<router-link to = "/xx">和<router-view>
+        component: () => import('@/components/element_components/ShowCardView')//导入view，在vue中用
     },
     {
         path: '/myInfo/:units',
         name: 'myInfo',
-        component:() => import('@/components/element_components/MyInfo'),
+        component: () => import('@/components/element_components/MyInfo'),
+        props: true,
+    },
+    {
+        path: '/bookDetail/:bookId',
+        name: 'bookDetail',
+        component: () => import('@/components/element_components/BookDetail'),
         props: true,
     }
-
 ]
 
 const router = new VueRouter({
-  routes,
+    routes,
 //页面跳转显示在顶部
-    scrollBehavior (to, from, savedPosition) {
+    scrollBehavior(to, from, savedPosition) {
         if (savedPosition) {
             return savedPosition
         } else {
-            return { x: 0, y: 0 } } }
+            return {x: 0, y: 0}
+        }
+    }
 })
 
 // 全局前置守卫

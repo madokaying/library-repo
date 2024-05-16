@@ -63,6 +63,9 @@ upload:
   path: D:/code/MyWorks/LibraryManagementSystem/library_spring/src/main/resources/static/img/ #这里是储存路径
   src: http://localhost:8080/static/img/ #这是前端访问路径的prefixed
 
+#配置epub书籍存放路径
+book:
+  path: D:/code/MyWorks/LibraryManagementSystem/library_spring/src/main/resources/static/book/
 #shiro配置
 #shiro:
 #  loginUrl:

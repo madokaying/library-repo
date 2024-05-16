@@ -17,9 +17,8 @@ import java.io.IOException;
 public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        Result result = new Result(HttpStatus.UNAUTHORIZED.value(), "认证失败请重新登录");
+        Result result = new Result(HttpStatus.UNAUTHORIZED.value(), "请登录认证后访问");
         String json = JSON.toJSONString(result);
         WebUtils.renderString(response,json);
     }
 }
- 

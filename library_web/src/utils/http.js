@@ -13,13 +13,13 @@ const instance = axios.create({
 instance.interceptors.request.use(
     config => {
         // 若localStorage内存在userInfo，则给请求头加上token
-        if (localStorage.getItem('userInfo')){
+        if (localStorage.getItem('userInfo')) {
             const token = JSON.parse(localStorage.getItem('userInfo')).token;
             if (token) {
                 config.headers.token = token;
             }
         }
-        store.commit('showLoading',true);
+        store.commit('showLoading', true);
         return config;
     },
     error => {
@@ -31,11 +31,11 @@ instance.interceptors.request.use(
 //后端响应后关闭加载界面
 instance.interceptors.response.use(
     res => {
-        store.commit('showLoading',false);
+        store.commit('showLoading', false);
         return Promise.resolve(res);
     },
     error => {
-        store.commit('showLoading',false);
+        store.commit('showLoading', false);
         return Promise.resolve(error);
     }
 )

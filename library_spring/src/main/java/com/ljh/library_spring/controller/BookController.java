@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 
 @CrossOrigin
 @RestController
@@ -26,5 +27,10 @@ public class BookController {
     @PostMapping("/getBookDetailById")
     public Result getBookDetailById(Integer bookId){
         return bookService.getBookDetailById(bookId);
+    }
+
+    @PostMapping("/getBookTableOfContentsById")
+    public Result getBookTableOfContentsById(Integer bookId) throws IOException {
+        return bookService.getBookTableOfContentsById(bookId);
     }
 }
