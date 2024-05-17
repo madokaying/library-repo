@@ -25,9 +25,10 @@
           style="padding-bottom: 15px"
           background
           layout="prev, pager, next"
-          :page-size=pageSize
-          :total=this.$store.state.bookInfo.total
-          hide-on-single-page=true
+          :page-size="pageSize"
+          :total="this.$store.state.bookInfo.total"
+          hide-on-single-page
+          :current-page="currentPage"
           @current-change="getPageNum">
       </el-pagination>
     </div>
@@ -44,19 +45,27 @@ export default {
   },
   data() {
     return {
-      pageSize: 12,
+      pageSize: 12,/*每页显示数据数*/
+      currentPage: JSON.parse(sessionStorage.getItem('currentPage')) || 1, // 当前页码，初始
     }
   },
   methods: {
-    getPageNum(currentPage) {
-      //返回当前页的书籍信息，默认每页显示pageSize本图书信息
-      let url = "/book/getBooksList?currentPage=" + currentPage + "&pageSize=" + this.pageSize;
+    getPageNum(newPage) {
+      sessionStorage.setItem('currentPage', newPage);
+      let url = `/book/getBooksList?currentPage=${newPage}&pageSize=${this.pageSize}`;
       this.$store.dispatch('syncBookInfo', url);
     },
   },
   mounted() {
-    //异步访问数据库中的数据,并赋值给vuex
-    this.$store.dispatch('syncBookInfo', '/book/getBooksList');
+    // 从 sessionStorage 获取上次的 currentPage 值，如果存在则应用
+    const storedPage = JSON.parse(sessionStorage.getItem('currentPage'));
+    if (storedPage) {
+      this.currentPage = storedPage; // 设置当前页
+      this.getPageNum(storedPage); // 根据存储的页码加载数据
+    } else {
+      // 如果没有存储的页码，则默认加载第一页数据
+      this.getPageNum(this.currentPage);
+    }
   }
 }
 </script>

@@ -25,9 +25,9 @@
         <div class="book-cover">
           <el-image
               :src="book.bookCover"
-              style="width: 200px;height: 300px"
+              fit="contain"
+              lazy
           >
-
           </el-image>
         </div>
         <div class="book-info">
@@ -65,7 +65,7 @@
           </el-row>
         </div>
         <div v-else>
-          <el-empty description="暂无目录信息" :image-size="300"></el-empty>
+          <el-empty description="暂无目录信息" :image-size="300" style="height: 600px"></el-empty>
         </div>
       </div>
     </div>
@@ -74,6 +74,7 @@
 
 <script>
 import http from '@/utils/http'
+import _ from 'lodash';
 
 export default {
   name: "BookId",
@@ -83,7 +84,7 @@ export default {
   data() {
     return {
       book: Object,
-      selectedItem: 1,/*判断是否选中的flag*/
+      selectedItem: null,/*判断是否选中的flag*/
       tableOfContents: [],/*书籍的目录信息*/
       loading: {
         comments:true,
@@ -96,29 +97,42 @@ export default {
       this.$router.go(-1);
     },
     selectedBookInfo() {
-      const desiredOffset = 0; // 回到元素顶端
-      window.scrollTo({
-        top: desiredOffset,
-        behavior: 'smooth'
+      // const desiredOffset = 0; // 回到元素顶端
+      // window.scrollTo({
+      //   top: desiredOffset,
+      //   behavior: 'smooth'
+      // });
+      //由于设置了各content的高度，且顶部有一个fixed的顶栏，所以这里用center可以满足内容不被顶栏挡住的效果
+      this.$refs.bookInfo.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
       });
       this.selectedItemByScroll(); // 添加这一行以确保样式同步更新
     },
     selectedUserComments() {
-      const bookInfoRect = this.$refs.bookInfo.getBoundingClientRect();
-      const desiredOffset = bookInfoRect.height; // 移动到bookInfo底部
-      window.scrollTo({
-        top: desiredOffset,
-        behavior: 'smooth'
+      // const bookInfoRect = this.$refs.bookInfo.getBoundingClientRect();
+      // const desiredOffset = bookInfoRect.height; // 移动到bookInfo底部
+      // window.scrollTo({
+      //   top: desiredOffset,
+      //   behavior: 'smooth'
+      // });
+      this.$refs.userComments.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
       });
       this.selectedItemByScroll(); // 添加这一行以确保样式同步更新
     },
     selectedCatalog() {
-      const bookInfoRect = this.$refs.bookInfo.getBoundingClientRect();
-      const userCommentsRect = this.$refs.userComments.getBoundingClientRect();
-      const desiredOffset = bookInfoRect.height + userCommentsRect.height; // 移动到userComments底部
-      window.scrollTo({
-        top: desiredOffset,
-        behavior: 'smooth'
+      // const bookInfoRect = this.$refs.bookInfo.getBoundingClientRect();
+      // const userCommentsRect = this.$refs.userComments.getBoundingClientRect();
+      // const desiredOffset = bookInfoRect.height + userCommentsRect.height; // 移动到userComments底部
+      // window.scrollTo({
+      //   top: desiredOffset,
+      //   behavior: 'smooth'
+      // });
+      this.$refs.catalog.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
       });
       this.selectedItemByScroll(); // 添加这一行以确保样式同步更新
     },
@@ -138,6 +152,7 @@ export default {
   },
   mounted() {
     /*访问后端数据库获取书籍的基本信息*/
+    /*TODO 后续后端新写一个实体类，这里只访问一个端口，就返回所需的所有数据*/
     http.post('book/getBookDetailById?bookId=' + this.bookId).then(res => {
       if (res.data.code === 200) {
         this.book = res.data.data;
@@ -162,7 +177,8 @@ export default {
       }
       this.loading.catalog = false;
     })
-    /*为滚动条添加监听器*/
+    /*为滚动条添加监听器,使用节流处理，300ms触发一次，提升性能*/
+    this.selectedItemByScroll = _.throttle(this.selectedItemByScroll, 300);
     window.addEventListener('scroll', this.selectedItemByScroll);
     /*退出组件时移除监听器*/
     this.$once('hook:beforeDestroy', () => {
@@ -209,9 +225,9 @@ export default {
 }
 
 .selectedItem {
-  background-color: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
-  color: black;
+  border-left:2px solid #409EFF;
+  border-right:2px solid #409EFF;
+  color: #409EFF;
 }
 
 .book-wrapper .content {
@@ -225,18 +241,16 @@ export default {
   overflow: hidden;
   margin: 0 15px 10px 15px;
   background-color: white;
-  padding: 10px;
-  height: 400px;
+  padding: 20px;
+
 }
 
 .book-info-wrapper .book-cover {
   width: 20%;
-  background-color: #ff5c5c;
 }
 
 .book-info-wrapper .book-info {
   width: 80%;
-  background-color: #49b1f5;
 }
 
 .user-comments {

@@ -2,7 +2,7 @@
 <template>
   <div class="book-card" @mouseover="changeImgSize = true" @mouseleave="changeImgSize = false" @click="bookDetail">
     <div class="cover">
-      <el-image :src="book.bookCover" alt="封面" fit="cover" class="img" :class="{'changeSize':changeImgSize}">
+      <el-image :src="book.bookCover" alt="封面" fit="scale-down" class="img" :class="{'changeSize':changeImgSize}" lazy>
       </el-image>
     </div>
     <div class="book-information">
