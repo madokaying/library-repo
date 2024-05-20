@@ -24,7 +24,6 @@ public class TbBook {
     private String bookSummary;//简介
     private String publisher;//出版社
     private BigDecimal physicalBookPrice;//实体书价格
-    private BigDecimal ebookPrice;//电子书价格
     private Integer bookNumber;//书本数
     private String bookCover;//封面地址
     private Integer borrowedTimes;//书本的借阅次数

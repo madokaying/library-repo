@@ -1,6 +1,7 @@
 <!--显示整体的框架-->
 <template>
-  <div>
+  <div
+    v-loading="loading">
     <div v-if="this.$store.state.bookInfo.bookList.length !== 0">
       <el-row>
         <el-col
@@ -47,6 +48,7 @@ export default {
     return {
       pageSize: 12,/*每页显示数据数*/
       currentPage: JSON.parse(sessionStorage.getItem('currentPage')) || 1, // 当前页码，初始
+      loading:true,
     }
   },
   methods: {
@@ -54,6 +56,7 @@ export default {
       sessionStorage.setItem('currentPage', newPage);
       let url = `/book/getBooksList?currentPage=${newPage}&pageSize=${this.pageSize}`;
       this.$store.dispatch('syncBookInfo', url);
+      this.loading = false;
     },
   },
   mounted() {
@@ -66,6 +69,7 @@ export default {
       // 如果没有存储的页码，则默认加载第一页数据
       this.getPageNum(this.currentPage);
     }
+    this.loading = false;
   }
 }
 </script>

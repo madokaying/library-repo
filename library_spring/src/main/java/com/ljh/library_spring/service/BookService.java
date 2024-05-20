@@ -7,10 +7,42 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public interface BookService {
-    //分页返回图书列表
-    public Page getBooksList(String bookName,Integer currentPage, Integer pageSize);
-    //通过图书id获取图书详细信息
+
+    /**
+     * 获取书籍列表的分页数据。
+     *
+     * @param bookName 指定的书籍名称，可以为空，为空时查询所有书籍。
+     * @param currentPage 当前页码，用于分页查询，默认为第1页。
+     * @param pageSize 每页显示的记录数，默认为12条记录。
+     * @return 返回书籍列表的分页对象，包含当前页的书籍数据。
+     */
+    public Page getBooksList(String bookName, Integer currentPage, Integer pageSize);
+
+
+    /**
+     * 根据书籍ID获取书籍详情。
+     *
+     * @param bookId 书籍的唯一标识符。
+     * @return Result 包含书籍详情的对象。如果找不到书籍，可能返回一个错误码。
+     */
     Result getBookDetailById(Integer bookId);
-    //通过图书id获取图书目录
+
+    /**
+     * 根据书籍ID获取书籍的目录内容。
+     *
+     * @param bookId 书籍的唯一标识符。
+     * @return Result 包含书籍目录内容的对象。
+     * @throws IOException 如果在获取目录内容过程中发生IO异常。
+     */
     Result getBookTableOfContentsById(Integer bookId) throws IOException;
+
+
+    /**
+     * 根据书的链接获取对应的章节内容。
+     *
+     * @param href 书籍章节的链接，用于定位特定章节的信息。
+     * @return Result 包含章节内容的对象，如果失败可能返回错误信息。
+     */
+    Result getBookChapterByHref(String href,Integer bookId);
+
 }

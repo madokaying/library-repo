@@ -278,7 +278,7 @@ export default {
         formData.append("file", data);
         formData.append("UID", JSON.parse(localStorage.getItem('userInfo')).UID);
         formData.append("fileType", this.fileType);
-        let url = '/user/setUserImg/' + this.options.changeType;
+        let url = `/user/setUserImg/${this.options.changeType}`;
         http.post(url, formData).then(response => {
           if (response.data.code === 200) {
             getAndSyncUserInfo(this, '上传成功', '上传失败');

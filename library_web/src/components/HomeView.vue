@@ -54,10 +54,17 @@ export default {
   line-height: 200px;
 }
 
+@media (max-width: 767px) { /* 宽度低于767px时将el-aside宽度设置为0 */
+  .el-aside {
+    width: 0 !important;
+    overflow: hidden; /* 防止内容溢出 */
+  }
+}
+
 .el-main {
   background-color: transparent;
   color: #333;
-  min-height: 700px !important;
+  min-height: 90vh !important;
   text-align: center;
   line-height: 25px;
   padding: 0;

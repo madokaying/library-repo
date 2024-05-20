@@ -24,7 +24,7 @@ export default {
   methods: {
     search() {
       if (this.searchName !== '') {
-        let url = '/book/getBooksList?bookName=' + this.searchName;
+        let url = `/book/getBooksList?bookName=${this.searchName}`;
         this.$store.dispatch('syncBookInfo', url);
       } else {
         this.$message('请输入有效字段');

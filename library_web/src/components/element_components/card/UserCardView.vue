@@ -1,6 +1,9 @@
 <!--这是个用户卡片，内含背景，头像展示，以及登录、注册，进入个人主页的按钮-->
 <template>
-  <div class="user-card">
+  <div
+      class="user-card"
+      v-loading="loading"
+  >
     <div class="background">
       <img :src="userInfo.bgUrl" alt="" height="100%" width="100%">
     </div>
@@ -130,6 +133,7 @@ export default {
         password: '',
         checkPassword: '',
       },
+      loading:true,
       rules: {
         username: [
           {validator: validateUsername, trigger: 'blur'}
@@ -214,8 +218,8 @@ export default {
       }).then(() => {
         http.post('/user/logout').then(res => {
           if (res.data.code === 200) {
-            //清空localStorage
-            localStorage.clear();
+            //清空localStorage中用户的信息
+            localStorage.removeItem('userInfo');
             this.$message({
               message: '登出成功',
               type: 'success'
@@ -247,38 +251,44 @@ export default {
         personalInformationButton: !this.button.personalInformationButton,
         logoutButton: !this.button.logoutButton,
       };
-    }
+    },
+    testToken(){
+      // localStorage.clear();
+      /*让nickname显示正确的用户昵称,存在vuex内的数据会因为刷新而重置，
+      localStorage,localStorage内的数据为永久储存
+      sessionStorage，让数据只在单次会话内存在*/
+      //查询localStorage内是否有用户信息
+      if (localStorage.getItem('userInfo') != null) {
+        //判断用户登录是否合法(主要判断token是否过期了)
+        http.post('/user/testToken').then(res => {
+          if (res.data.code === 200) {
+            //同步用户信息到data
+            this.dataSync();
+            this.loading = false;
+            //显示欢迎提示
+            // this.$message({
+            //   message: '欢迎回来,' + this.userInfo.nickname,
+            //   type: 'success',
+            //   duration: '2000',
+            // })
+            //切换按钮显示
+            this.changeButton();
+          }
+          //若登录已过期或者token非法，则清空localStorage并给出提示
+          else if (res.data.code === 401) {
+            this.$message.error('登录非法或者已过期，请重新登录');
+            localStorage.removeItem('userInfo');
+            this.loading = false;
+            location.reload();
+          }
+        })
+      } else {
+        this.loading = false;
+      }
+    },
   },
   mounted() {
-    // localStorage.clear();
-    /*让nickname显示正确的用户昵称,存在vuex内的数据会因为刷新而重置，
-    localStorage,localStorage内的数据为永久储存
-    sessionStorage，让数据只在单次会话内存在*/
-    //查询localStorage内是否有用户信息
-    if (localStorage.getItem('userInfo') != null) {
-      //判断用户登录是否合法(主要判断token是否过期了)
-      http.post('/user/testToken').then(res => {
-        if (res.data.code === 200) {
-          //同步用户信息到data
-          this.dataSync();
-          //显示欢迎提示
-          // this.$message({
-          //   message: '欢迎回来,' + this.userInfo.nickname,
-          //   type: 'success',
-          //   duration: '2000',
-          // })
-          //切换按钮显示
-          this.changeButton();
-        }
-        //若登录已过期或者token非法，则清空localStorage并给出提示
-        else if (res.data.code === 401) {
-          this.$message.error('登录非法或者已过期，请重新登录');
-          localStorage.clear();
-        }
-      })
-    } else {
-      return;
-    }
+    this.testToken();
   }
 }
 </script>

@@ -21,6 +21,8 @@
 </template>
 
 <script>
+import http from "@/utils/http";
+
 export default {
   name: "BookCardView",
   //props用于接收父vue传来的值
@@ -34,10 +36,22 @@ export default {
   },
   methods: {
     bookDetail() {
-      this.$router.push({
-        name: 'bookDetail',
-        params: {bookId: this.book.bookId},
-      });
+      //前置判断是否已经登录
+      http.post('/user/testToken').then(res => {
+        if (res.data.code === 200) {
+          this.$router.push({
+            name: 'bookDetail',
+            params: {bookId: this.book.bookId},
+          });
+        }
+        else if (res.data.code === 401) {
+          this.$message({
+            message: res.data.msg,
+            type: 'error',
+            duration: '2000',
+          })
+        }
+      })
     },
   }
 }

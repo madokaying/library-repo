@@ -33,4 +33,9 @@ public class BookController {
     public Result getBookTableOfContentsById(Integer bookId) throws IOException {
         return bookService.getBookTableOfContentsById(bookId);
     }
+
+    @PostMapping("/getBookChapterByHref")
+    public Result getBookChapterByHref(String href,Integer bookId) throws IOException {
+        return bookService.getBookChapterByHref(href,bookId);
+    }
 }

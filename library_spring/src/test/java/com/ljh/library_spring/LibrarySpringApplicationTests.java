@@ -128,6 +128,7 @@ class LibrarySpringApplicationTests {
         try {
             in = new FileInputStream(bookPath);
             Book book = epubReader.readEpub(in);
+
             String href = "text00002.html#section";
             Resource resource = book.getResources().getByHref(href);
             byte[] chapter = resource.getData();

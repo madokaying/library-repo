@@ -12,7 +12,6 @@
       <el-menu-item index="1" @click="toHome"><i class="el-icon-s-home"></i>首页</el-menu-item>
       <el-menu-item index="2">分类</el-menu-item>
       <el-menu-item index="3">论坛</el-menu-item>
-<!--      TODO 由于设置了不同大小的屏幕的栅格数，因此这里决定要加一个登录选项-->
     </el-menu>
   </el-header>
 </template>
@@ -31,9 +30,8 @@ export default {
   },
   methods: {
     toHome() {
-      //重置书籍信息
-      this.$store.dispatch('syncBookInfo', '/book/getBooksList');
       this.$router.push({name: 'mainBody', params: {units: 'homePage'}});
+      location.reload();
     }
   }
 }

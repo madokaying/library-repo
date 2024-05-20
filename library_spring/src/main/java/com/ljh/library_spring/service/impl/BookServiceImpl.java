@@ -71,7 +71,6 @@ public class BookServiceImpl implements BookService {
             return new Result(501, "获取图书目录失败，请联系管理员解决");
         }
     }
-
     /**
      * 根据提供的目录信息（TableOfContents）创建并返回一个包含各章信息（ChaptersOfBook）的列表。
      *
@@ -92,4 +91,25 @@ public class BookServiceImpl implements BookService {
         return chapters;
     }
 
+    public Result getBookChapterByHref(String href,Integer bookId) {
+        if (href != null) {
+            // 合成得到书籍的实际存放路径
+            String bookFilePath = this.bookPath + bookId + ".epub";
+
+            try (FileInputStream in = new FileInputStream(bookFilePath)) {
+                EpubReader epubReader = new EpubReader();
+                Book book = epubReader.readEpub(in);
+                Resource resource = book.getResources().getByHref(href);
+                if (resource != null){
+                    String chapterContent = new String(resource.getData());
+                    return new Result(200, "获取章节内容成功",chapterContent);
+                } else {
+                    return new Result(502, "该章节不存在");
+                }
+            } catch (IOException e) {
+                return new Result(501, "获取图书章节内容失败，请联系管理员解决");
+            }
+        }
+        return null;
+    }
 }
