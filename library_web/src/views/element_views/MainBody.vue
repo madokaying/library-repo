@@ -22,9 +22,9 @@
 </template>
 
 <script>
-import UserCardView from "@/components/element_components/card/UserCardView";
-import SearchCard from "@/components/element_components/card/SearchCard";
-import ShowCardView from "@/components/element_components/ShowCardView";
+import UserCardView from "@/views/element_views/card/UserCardView.vue";
+import SearchCard from "@/views/element_views/card/SearchCard.vue";
+import ShowCardView from "@/views/element_views/ShowCardView.vue";
 
 export default {
   name: "MainBody",

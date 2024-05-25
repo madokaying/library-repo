@@ -18,25 +18,25 @@ const routes = [
     {
         path: '/mainBody/:units',
         name: 'mainBody',
-        component: () => import('@/components/element_components/MainBody'),
+        component: () => import('@/views/element_views/MainBody'),
         props: true,//不声明props:true的话传参无效
     },
     {
         path: '/showCardView',//配置访问路径
         name: 'showCardView',//名字
         //配合<router-link to = "/xx">和<router-view>
-        component: () => import('@/components/element_components/ShowCardView')//导入view，在vue中用
+        component: () => import('@/views/element_views/ShowCardView')//导入view，在vue中用
     },
     {
         path: '/myInfo/:units',
         name: 'myInfo',
-        component: () => import('@/components/element_components/MyInfo'),
+        component: () => import('@/views/element_views/MyInfo'),
         props: true,
     },
     {
         path: '/bookDetail/:bookId',
         name: 'bookDetail',
-        component: () => import('@/components/element_components/BookDetail'),
+        component: () => import('@/views/element_views/BookDetail'),
         props: true,
     }
 ]

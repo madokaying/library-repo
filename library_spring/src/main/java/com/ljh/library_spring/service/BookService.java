@@ -45,4 +45,12 @@ public interface BookService {
      */
     Result getBookChapterByHref(String href,Integer bookId);
 
+    /**
+     * 根据书籍ID获取书籍的标签。
+     *
+     * @param bookId 书籍的唯一标识符。
+     * @return Result 包含书籍标签信息的结果对象。成功时，结果对象中包含书籍的标签信息；失败时，结果对象中包含错误信息。
+     */
+    Result getTagsOfBookById(Integer bookId);
+
 }

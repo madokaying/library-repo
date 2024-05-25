@@ -109,8 +109,8 @@ export default {
     return {
       userInfo: {
         nickname: '请先登录',
-        bgUrl: userBackground,
-        avatarUrl: userAvatar,
+        bgUrl: null,
+        avatarUrl: null,
         fit: 'scale-down',
       },
       dialog: {
@@ -283,6 +283,8 @@ export default {
           }
         })
       } else {
+        this.userInfo.avatarUrl = userAvatar;
+        this.userInfo.bgUrl = userBackground;
         this.loading = false;
       }
     },

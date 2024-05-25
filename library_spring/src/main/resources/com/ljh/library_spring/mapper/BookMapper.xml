@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ljh.library_spring.mapper.BookMapper">
+
+    <select id="getTagsOfBookById" resultType="java.lang.String" parameterType="java.lang.Integer">
+        SELECT
+            DISTINCT t.tag_name
+        FROM
+            book_tag bt
+                LEFT JOIN tag t ON bt.tag_id = t.tag_id
+        WHERE
+            bt.book_id = #{bookId}
+    </select>
+</mapper>

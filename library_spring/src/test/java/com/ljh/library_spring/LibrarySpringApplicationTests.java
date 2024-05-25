@@ -3,11 +3,12 @@ package com.ljh.library_spring;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.ljh.library_spring.controller.BookController;
-import com.ljh.library_spring.entity.TbBook;
-import com.ljh.library_spring.entity.Result;
+import com.ljh.library_spring.entity.*;
 import com.ljh.library_spring.controller.UserController;
 import com.ljh.library_spring.mapper.BookMapper;
+import com.ljh.library_spring.mapper.CommentMapper;
 import com.ljh.library_spring.mapper.MenuMapper;
+import com.ljh.library_spring.mapper.UserMapper;
 import nl.siegmann.epublib.domain.*;
 import nl.siegmann.epublib.epub.EpubReader;
 import org.jsoup.Jsoup;
@@ -21,6 +22,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.io.*;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -30,11 +32,15 @@ class LibrarySpringApplicationTests {
     @Autowired
     private UserController userController;
     @Autowired
+    private UserMapper userMapper;
+    @Autowired
     private BookMapper bookMapper;
     @Autowired
     private BookController bookController;
     @Autowired
     private MenuMapper menuMapper;
+    @Autowired
+    private CommentMapper commentMapper;
 
     @Test
     public void getList() {
@@ -85,7 +91,6 @@ class LibrarySpringApplicationTests {
         tbBook.setBookAuthor("乌贼");
         tbBook.setPublisher("北京出版社");
         tbBook.setPhysicalBookPrice(BigDecimal.valueOf(20));
-        tbBook.setEbookPrice(BigDecimal.valueOf(2));
         bookMapper.insert(tbBook);
     }
 
@@ -226,6 +231,104 @@ class LibrarySpringApplicationTests {
             }catch (IOException e){
                 e.printStackTrace();
             }
+        }
+    }
+
+    @Test
+    public void TestParentComment(){
+        /*
+         思路：
+          1.只获取一级评论，通过一级评论的评论者id，获取到评论者的头像和昵称，再通过评论id获取到有没有子评论，有的话有几条，封装到成一个
+          实体类，以列表的形式返回给前端
+          2.前端若点击某评论的查看回复，则通过评论id获取到其底下所有的子评论，并通过子评论的评论者id，获取到评论者的头像和昵称，通过子
+          评论评论对象的id获取到被评论者的id再获取被评论者的昵称，封装到子评论实体类中，再封装到一级评论实体类中，再返回给前端
+         */
+//        String commentTargetType = null;
+//        String commentTargetId = null;
+//        Integer currentPage = null;
+//        Integer pageSize = null;
+
+        LambdaQueryWrapper<Comment> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Comment::getCommentingTarget,1)
+                .eq(Comment::getCommentingTargetId,45)
+                .orderByDesc(Comment::getCreatedTime);
+        //获取到45编号书籍下的所有一级评论
+        List<Comment> list = commentMapper.selectList(queryWrapper);
+        List<ParentComment> parentCommentList = new ArrayList<>();
+        for (Comment comment : list) {
+            //children为二级评论
+            LambdaQueryWrapper<Comment> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+            lambdaQueryWrapper.eq(Comment::getCommentingTarget,3)
+                    .eq(Comment::getCommentingTargetId,comment.getCommentId());
+            List<Comment> children = commentMapper.selectList(lambdaQueryWrapper);
+            User user = userMapper.selectById(comment.getUserId());
+            if (user!=null){
+                ParentComment parentComment = new ParentComment();
+                parentComment.setComment(comment);
+                parentComment.setUserNickname(user.getNickname());
+                parentComment.setUserAvatar(user.getAvatar());
+                List<Comment> allChildrenList = new ArrayList<>(children);
+                if (!children.isEmpty()){
+                    //用递归得到二级评论下的所有评论,放到ParentComment的ChildrenCommentList中
+                    List<ChildrenComment> childrenCommentList = TestChildrenComment(children,allChildrenList);
+                    parentComment.setChildrenCommentLength(childrenCommentList.size());
+                    parentComment.setChildrenCommentList(childrenCommentList);
+                } else {
+                    parentComment.setChildrenCommentLength(0);
+                    parentComment.setChildrenCommentList(null);
+                }
+                parentCommentList.add(parentComment);
+            }
+        }
+        System.out.println("查询结果如下：");
+        System.out.println(parentCommentList);
+    }
+
+    //children为某一一级评论下的二级评论
+    //children用于查询，allChildrenList用于返回总结果
+    public List<ChildrenComment> TestChildrenComment(List<Comment> children,List<Comment> allChildrenList){
+        //通过递归获取到所有子评论，通过子评论的评论者id获取到评论者的头像和昵称，通过评论对象的id获取到被评论者的id进而获取到被评论者的昵称，封装到childrenComment中，最后返回这样的一个list
+        //获取当前级子评论的所有子评论，用于下一次递归查找
+        //如果children不为空，则递归继续找子评论，若不为空说明所有的子评论全部找到了，则按需求封装到List<ChildrenComment>中返回
+        List<Comment> list = new ArrayList<>();
+        if (!children.isEmpty()) {
+            for (Comment comment:children){
+                LambdaQueryWrapper<Comment> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+                lambdaQueryWrapper.eq(Comment::getCommentingTarget,3)
+                        .eq(Comment::getCommentingTargetId,comment.getCommentId());
+                List<Comment> lowerChildren =commentMapper.selectList(lambdaQueryWrapper);
+                list.addAll(lowerChildren);
+                //将每个子评论下的下一级所有子评论加入到allChildrenList中
+                allChildrenList.addAll(lowerChildren);
+                System.out.println("测试数据");
+            }
+            System.out.println("测试数据");
+            return TestChildrenComment(list,allChildrenList);
+        } else {
+            List<ChildrenComment> childrenCommentList = new ArrayList<>();
+            for(Comment comment:allChildrenList){
+                ChildrenComment childrenComment = new ChildrenComment();
+                //获取评论用户的头像和昵称
+                User user = userMapper.selectById(comment.getUserId());
+                //获取被评论者的昵称
+                LambdaQueryWrapper<Comment> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+                lambdaQueryWrapper.eq(Comment::getCommentingTarget,3)
+                        .eq(Comment::getCommentId,comment.getCommentingTargetId());
+                Comment commentator = commentMapper.selectOne(lambdaQueryWrapper);
+                if (user!=null){
+                    childrenComment.setComment(comment);
+                    childrenComment.setUserNickname(user.getNickname());
+                    childrenComment.setUserAvatar(user.getAvatar());
+                    if (commentator!=null){
+                        User commentatorUser = userMapper.selectById(commentator.getUserId());
+                        if (commentatorUser!=null){
+                            childrenComment.setCommentTargetUserNickname(commentatorUser.getNickname());
+                        }
+                    }
+                }
+                childrenCommentList.add(childrenComment);
+            }
+            return childrenCommentList;
         }
     }
 }

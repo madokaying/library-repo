@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import http from '@/utils/http'
-import {Loading} from 'element-ui';
+// import {Loading} from 'element-ui';
 
 
 Vue.use(Vuex)
@@ -27,21 +27,21 @@ export default new Vuex.Store({
             bookList: [],
             total: 0,
         },
-        options: {
-            lock: false,
-            text: '加载中，请稍后',//加载动画的文字
-            spinner: 'el-icon-loading',//加载动画的图标
-            background: 'rgba(0, 0, 0, 0.7)'//加载动画的背景
-        },
+        // options: {
+        //     lock: false,
+        //     text: '加载中，请稍后',//加载动画的文字
+        //     spinner: 'el-icon-loading',//加载动画的图标
+        //     background: 'rgba(0, 0, 0, 0.7)'//加载动画的背景
+        // },
     },
     getters: {},
     //里面定义方法，操作state方发
     mutations: {
         //加载方法
-        showLoading(state, val) {
-            let loadingInstance = Loading.service(state.options);
-            val ? Loading.service(state.options) : loadingInstance.close() //这里判断调用方法时候的参数值，打开服务的时候传true，关闭服务的时候传false
-        },
+        // showLoading(state, val) {
+        //     let loadingInstance = Loading.service(state.options);
+        //     val ? Loading.service(state.options) : loadingInstance.close() //这里判断调用方法时候的参数值，打开服务的时候传true，关闭服务的时候传false
+        // },
         //设置bookInfo的值
         setBookInfo(state, res) {
             state.bookInfo.bookList = res.data.data.records;

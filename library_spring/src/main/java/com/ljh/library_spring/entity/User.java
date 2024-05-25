@@ -13,11 +13,10 @@ import lombok.NoArgsConstructor;
  * @author makejava
  * @since 2024-03-30 16:19:16
  */
-@SuppressWarnings("serial")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User extends Model<User> {
+public class User {
     //主键/编号
     @TableId(type = IdType.AUTO)
     private Long id;

@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import HeaderMenu from "@/components/element_components/HeaderMenuView";
+import HeaderMenu from "@/views/element_views/HeaderMenuView.vue";
 
 export default {
   name: "HomeVue",
@@ -81,7 +81,7 @@ body > .el-container {
   width: 100%;
 
   /*设置背景图片*/
-  background-image: url('../assets/images/20240413153917.jpg');
+  background-image: url('@/assets/images/20240413153917.jpg');
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;

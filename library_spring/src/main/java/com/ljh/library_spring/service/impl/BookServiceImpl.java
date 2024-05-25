@@ -112,4 +112,9 @@ public class BookServiceImpl implements BookService {
         }
         return null;
     }
+
+    public Result getTagsOfBookById(Integer bookId) {
+        List<String> tags = bookMapper.getTagsOfBookById(bookId);
+        return new Result(200,"获取图书标签成功",tags);
+    }
 }

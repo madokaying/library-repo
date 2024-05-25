@@ -38,4 +38,9 @@ public class BookController {
     public Result getBookChapterByHref(String href,Integer bookId) throws IOException {
         return bookService.getBookChapterByHref(href,bookId);
     }
+
+    @PostMapping("/getTagsOfBookById")
+    public Result getTagsOfBookById(Integer bookId){
+        return bookService.getTagsOfBookById(bookId);
+    }
 }

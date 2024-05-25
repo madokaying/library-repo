@@ -59,11 +59,14 @@
               {{book.bookAuthor}}
             </p>
             <p>{{book.bookSummary}}</p>
-            <!--          TODO 补齐标签，阅读人数，借阅次数等相关功能-->
-            <span style="margin-right: 25px">阅读人数:0</span>
-            <span>借阅次数:0</span>
-            <p style="text-align: left;margin-left: 10px">
+            <p style="text-align: left;margin-left: 22px">
+              热度:
+              <span style="font-size: 20px;margin-right: 5px">{{borrowTimes}}</span><span style="font-size: 15px;color: gray;margin-right: 10px">借阅</span>
+              <span style="font-size: 20px;margin-right: 5px">{{collectTimes}}</span><span style="font-size: 15px;color: gray;margin-right: 10px">收藏</span>
+            </p>
+            <p style="text-align: left;margin-left: 22px">
               标签:
+              <span v-for="(tag,index) in tags" :key="index" style="border-radius: 10px;border: #49b1f5 solid 1px;color: #49b1f5;margin-right: 10px;padding: 0 10px">{{ tag }}</span>
             </p>
             <div>
               <!--操作按钮区域-->
@@ -84,7 +87,6 @@
           <div v-if="tableOfContents.length !== 0" style="overflow-y: auto;height: 600px">
             <el-row style="text-align: left;margin: 20px">
               <span style="font-size: 30px;margin-right: 20px"><b>目录</b></span>
-              <!--            TODO 继续阅读相关功能，上次阅读至第几章部分待完成-->
               <span v-if="readingRecord !== null" style="border-radius: 10px;background-color: #409EFF;color: white;padding: 5px 10px;font-size: 13px">
                 共{{tableOfContents.length}}章，上次阅读至**{{readingRecord.chapter}}**
               </span>
@@ -129,6 +131,9 @@ export default {
   data() {
     return {
       book: Object,
+      tags: [],
+      borrowTimes: 0,/*借阅次数*/
+      collectTimes: 0,/*收藏次数*/
       selectedItem: 1,/*判断是否选中的flag*/
       tableOfContents: [],/*书籍的目录信息*/
       loading: {
@@ -355,6 +360,19 @@ export default {
         this.loading.catalog = false;
       })
     },
+    getTagsOfBook() {
+      http.post(`book/getTagsOfBookById?bookId=${this.bookId}`).then(res => {
+        if (res.data.code === 200){
+          this.tags = res.data.data;
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: 'error',
+            duration: '2000',
+          })
+        }
+      })
+    },
   },
 
   mounted() {
@@ -363,6 +381,8 @@ export default {
     this.getBookDetailById();
     /*通过书籍id获取书籍的章节目录*/
     this.getTableOfContentsById();
+    /*通过书籍id获取书籍标签信息*/
+    this.getTagsOfBook();
     /*为滚动条添加监听器,使用节流处理，300ms触发一次，提升性能*/
     this.selectedItemByScroll = _.throttle(this.selectedItemByScroll, 300);
     window.addEventListener('scroll', this.selectedItemByScroll);

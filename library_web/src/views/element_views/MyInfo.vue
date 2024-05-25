@@ -125,7 +125,7 @@
                 </div>
               </el-col>
               <el-col :span="6">
-                <div class="basic-menu-item" @click="toMyPosts">
+                <div class="basic-menu-item" @click="toMyIssue">
                   <div>
                     <svg class="icon" aria-hidden="true">
                       <use xlink:href="#icon-posts"/>
@@ -205,7 +205,7 @@
 <script>
 import http from "@/utils/http";
 import {VueCropper} from 'vue-cropper'
-import PersonalInfo from "@/components/element_components/menu/PersonalInfo";
+import PersonalInfo from "@/views/element_views/menu/PersonalInfo.vue";
 import {getAndSyncUserInfo} from '@/utils/getAndSyncUserInfo'
 
 export default {
@@ -354,7 +354,7 @@ export default {
       this.$router.push({name: 'myInfo', params: {units: 'myBookCollection'}});
     },
     //跳转到我的帖子
-    toMyPosts() {
+    toMyIssue() {
       this.$router.push({name: 'myInfo', params: {units: 'myPosts'}});
     },
     //跳转到我的收藏

@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import BookCardView from "@/components/element_components/card/BookCardView";
+import BookCardView from "@/views/element_views/card/BookCardView.vue";
 
 export default {
   name: "ShowCardView",

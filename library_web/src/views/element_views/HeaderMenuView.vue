@@ -10,7 +10,7 @@
             :fit="fit"></el-image>
       </el-menu-item>
       <el-menu-item index="1" @click="toHome"><i class="el-icon-s-home"></i>首页</el-menu-item>
-      <el-menu-item index="2">分类</el-menu-item>
+      <el-menu-item index="2">分类排行</el-menu-item>
       <el-menu-item index="3">论坛</el-menu-item>
     </el-menu>
   </el-header>
