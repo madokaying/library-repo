@@ -77,8 +77,8 @@
             </div>
           </div>
         </div>
-        <div class="user-comments" ref="userComments">
-          用户评论
+        <div ref="userComments">
+          <comments-box :bookId="bookId" :type="1"></comments-box>
         </div>
         <div
             class="catalog"
@@ -122,9 +122,13 @@
 <script>
 import http from '@/utils/http'
 import _ from 'lodash';
+import CommentsBox from "@/components/CommentsBox.vue";
 
 export default {
   name: "BookId",
+  components:{
+    CommentsBox,
+  },
   props: {
     bookId: Object,
   },
@@ -173,16 +177,17 @@ export default {
       this.selectedItemByScroll(); // 添加这一行以确保样式同步更新
     },
     selectedUserComments() {
-      // const bookInfoRect = this.$refs.bookInfo.getBoundingClientRect();
-      // const desiredOffset = bookInfoRect.height; // 移动到bookInfo底部
-      // window.scrollTo({
-      //   top: desiredOffset,
-      //   behavior: 'smooth'
-      // });
-      this.$refs.userComments.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
+      const bookInfoRect = this.$refs.bookInfo.getBoundingClientRect();
+      const fix = 10;
+      const desiredOffset = bookInfoRect.height + fix; // 移动到bookInfo底部
+      window.scrollTo({
+        top: desiredOffset,
+        behavior: 'smooth'
       });
+      // this.$refs.userComments.scrollIntoView({
+      //   behavior: 'smooth',
+      //   block: 'center'
+      // });
       this.selectedItemByScroll(); // 添加这一行以确保样式同步更新
     },
     selectedCatalog() {
@@ -210,6 +215,7 @@ export default {
       const bookInfoRect = this.$refs.bookInfo.getBoundingClientRect();
       const userCommentsRect = this.$refs.userComments.getBoundingClientRect();
       const catalogRect = this.$refs.catalog.getBoundingClientRect();
+
       // 根据滚动位置确定当前选中的项
       if (scrollTop >= 0 && scrollTop < bookInfoRect.height) {
         this.selectedItem = 1; // 选中书信息部分
@@ -458,14 +464,14 @@ export default {
   width: 80%;
 }
 
-.user-comments {
+/*.user-comments {
   border-radius: 10px;
   overflow: hidden;
   margin: 0 15px 10px 15px;
   background-color: white;
   padding: 0;
   height: 600px;
-}
+}*/
 
 .catalog {
   border-radius: 10px;

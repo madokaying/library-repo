@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
     /**
      * 实现注册相关逻辑,开启事务确保数据一致性
      * */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Result register(User insertUser){
         //加密密码
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();

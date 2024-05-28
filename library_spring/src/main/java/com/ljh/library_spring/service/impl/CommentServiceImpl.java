@@ -1,20 +1,23 @@
 package com.ljh.library_spring.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.ljh.library_spring.entity.Comment;
-import com.ljh.library_spring.entity.ChildrenComment;
-import com.ljh.library_spring.entity.Result;
+import com.ljh.library_spring.entity.*;
 import com.ljh.library_spring.mapper.CommentMapper;
+import com.ljh.library_spring.mapper.UserMapper;
 import com.ljh.library_spring.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class CommentServiceImpl implements CommentService {
     @Autowired
     private CommentMapper commentMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     /**
      * 添加评论
@@ -38,27 +41,87 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
-    public Result getCommentList(String commentTargetType, String commentTargetId, Integer currentPage, Integer pageSize) {
-//        //TODO 要求获取到所有一级评论，包括评论者的头像和昵称，被回复者的昵称，所有的子评论以及子评论的数量
-//        Integer id = Integer.parseInt(commentTargetId);
-//        LambdaQueryWrapper<Comment> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-//        if ("book".equals(commentTargetType)){
-//            lambdaQueryWrapper.eq(Comment::getCommentingTarget,1)
-//                    .eq(Comment::getCommentingTargetId,id);
-//            List<Comment> list = commentMapper.selectList(lambdaQueryWrapper);
-//            //通过list里的commentId判断是否有子评论
-//        } else if ("issue".equals(commentTargetType)){
-//            lambdaQueryWrapper.eq(Comment::getCommentingTarget,2)
-//                    .eq(Comment::getCommentingTargetId,id);
-//        }
-//        Page<Comment> page = new Page<>(currentPage, pageSize);
-//        Integer type = Integer.parseInt(commentTargetType);
-//        Integer id = Integer.parseInt(commentTargetId);
-//        LambdaQueryWrapper<Comment> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-//        lambdaQueryWrapper.eq(Comment::getCommentingTarget, type)
-//                .eq(Comment::getCommentingTargetId, id);
-//        commentMapper.selectPage(page, lambdaQueryWrapper);
-//        return new Result(200,"获取评论成功",page);
-        return null;
+    public Result getCommentList(String commentTargetType, String commentTargetId) {
+        Integer type = Integer.valueOf(commentTargetType);
+        Integer id = Integer.valueOf(commentTargetId);
+        List<ParentComment> parentCommentList = getParentComment(type,id);
+        return new Result<>(200,"获取评论成功",parentCommentList);
+    }
+
+    public List<ParentComment> getParentComment(Integer commentTargetType, Integer commentTargetId){
+        LambdaQueryWrapper<Comment> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Comment::getCommentingTarget,commentTargetType)
+                .eq(Comment::getCommentingTargetId,commentTargetId)
+                .eq(Comment::getDeleteFlag,0)
+                .orderByDesc(Comment::getCreatedTime);
+        //获取到编号书籍下的所有未被删除的一级评论
+        List<Comment> list = commentMapper.selectList(queryWrapper);
+        List<ParentComment> parentCommentList = new ArrayList<>();
+        for (Comment comment : list) {
+            //children为二级评论
+            LambdaQueryWrapper<Comment> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+            lambdaQueryWrapper.eq(Comment::getCommentingTarget,3)
+                    .eq(Comment::getCommentingTargetId,comment.getCommentId());
+            List<Comment> children = commentMapper.selectList(lambdaQueryWrapper);
+            User user = userMapper.selectById(comment.getUserId());
+            if (user!=null){
+                ParentComment parentComment = new ParentComment();
+                parentComment.setComment(comment);
+                parentComment.setUserNickname(user.getNickname());
+                parentComment.setUserAvatar(user.getAvatar());
+                List<Comment> allChildrenList = new ArrayList<>(children);
+                if (!children.isEmpty()){
+                    //用递归得到二级评论下的所有评论,放到ParentComment的ChildrenCommentList中
+                    List<ChildrenComment> childrenCommentList = getChildrenComment(children,allChildrenList);
+                    parentComment.setChildrenCommentLength(childrenCommentList.size());
+                    parentComment.setChildrenCommentList(childrenCommentList);
+                } else {
+                    parentComment.setChildrenCommentLength(0);
+                    parentComment.setChildrenCommentList(null);
+                }
+                parentCommentList.add(parentComment);
+            }
+        }
+        return parentCommentList;
+    }
+
+    public List<ChildrenComment> getChildrenComment(List<Comment> children,List<Comment> allChildrenList){
+        List<Comment> list = new ArrayList<>();
+        if (!children.isEmpty()) {
+            for (Comment comment:children){
+                LambdaQueryWrapper<Comment> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+                lambdaQueryWrapper.eq(Comment::getCommentingTarget,3)
+                        .eq(Comment::getCommentingTargetId,comment.getCommentId());
+                List<Comment> lowerChildren =commentMapper.selectList(lambdaQueryWrapper);
+                list.addAll(lowerChildren);
+                allChildrenList.addAll(lowerChildren);
+            }
+            return getChildrenComment(list,allChildrenList);
+        } else {
+            List<ChildrenComment> childrenCommentList = new ArrayList<>();
+            for(Comment comment:allChildrenList){
+                if (comment.getDeleteFlag() == 0){
+                    ChildrenComment childrenComment = new ChildrenComment();
+                    User user = userMapper.selectById(comment.getUserId());
+                    LambdaQueryWrapper<Comment> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+                    lambdaQueryWrapper.eq(Comment::getCommentingTarget,3)
+                            .eq(Comment::getCommentId,comment.getCommentingTargetId());
+                    Comment commentator = commentMapper.selectOne(lambdaQueryWrapper);
+                    if (user!=null){
+                        childrenComment.setComment(comment);
+                        childrenComment.setUserNickname(user.getNickname());
+                        childrenComment.setUserAvatar(user.getAvatar());
+                        if (commentator!=null){
+                            User commentatorUser = userMapper.selectById(commentator.getUserId());
+                            if (commentatorUser!=null){
+                                childrenComment.setCommentTargetUserNickname(commentatorUser.getNickname());
+                            }
+                        }
+                    }
+                    childrenCommentList.add(childrenComment);
+                }
+            }
+            return childrenCommentList;
+        }
     }
 }

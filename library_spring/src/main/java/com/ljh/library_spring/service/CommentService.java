@@ -14,5 +14,5 @@ public interface CommentService {
 
     Result addComment(Comment comment);
 
-    Result getCommentList(String commentTargetType, String commentTargetId, Integer currentPage, Integer pageSize);
+    Result getCommentList(String commentTargetType, String commentTargetId);
 }

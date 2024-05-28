@@ -3,6 +3,7 @@ package com.ljh.library_spring.entity;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,7 +37,7 @@ public class Comment {
     /**
      * 评论对象的id
      */
-    private Integer CommentingTargetId;
+    private Integer commentingTargetId;
     /**
      * 评论用户id
      */
@@ -47,6 +48,12 @@ public class Comment {
      * 2、对帖子的评论
      * 3、对用户的评论（回复）
      */
-    private Integer CommentingTarget;
+    private Integer commentingTarget;
+    /**
+     * 标记删除状态的字段。
+     * 使用@TableLogic注解来定义该字段为逻辑删除标识。
+     */
+    @TableLogic
+    private Integer deleteFlag;
 }
 

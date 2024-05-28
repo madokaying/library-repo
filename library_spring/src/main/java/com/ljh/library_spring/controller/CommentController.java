@@ -28,8 +28,8 @@ public class CommentController {
     }
 
     @PostMapping("/getParentCommentList")
-    public Result getCommentList(String commentTargetType,String commentTargetId,Integer currentPage,Integer pageSize){
-        return commentService.getCommentList(commentTargetType,commentTargetId,currentPage,pageSize);
+    public Result getCommentList(String commentTargetType,String commentTargetId){
+        return commentService.getCommentList(commentTargetType,commentTargetId);
     }
 }
 
