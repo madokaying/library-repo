@@ -58,4 +58,11 @@ public class UserController{
     public Result changeInfoByUser(@RequestBody User user){
         return userService.changeInfoByUser(user);
     }
+
+    //获取用户基础四项数据
+    @PostMapping("/getCommonData")
+    public Result getCommonData(Integer UID){
+        return userService.getCommonData(UID);
+    }
+
 }

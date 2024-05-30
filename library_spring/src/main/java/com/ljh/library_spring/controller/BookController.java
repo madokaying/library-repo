@@ -43,4 +43,28 @@ public class BookController {
     public Result getTagsOfBookById(Integer bookId){
         return bookService.getTagsOfBookById(bookId);
     }
+
+    //收藏书籍
+    @PostMapping("/collectBook")
+    public Result collectBook(Integer bookId,Integer userId){
+        return bookService.collectBook(bookId,userId);
+    }
+
+    //取消收藏
+    @PostMapping("/cancelCollectBook")
+    public Result cancelCollectBook(Integer bookId,Integer userId){
+        return bookService.cancelCollectBook(bookId,userId);
+    }
+
+    //判断是否已经收藏
+    @PostMapping("/isCollectedBook")
+    public Result isCollectedBook(Integer bookId,Integer userId){
+        return bookService.isCollectedBook(bookId,userId);
+    }
+
+    //获取用户的收藏书籍列表
+    @PostMapping("/getMyCollectBooks")
+    public Result getMyCollectBooks(Integer userId){
+        return bookService.getMyCollectBooks(userId);
+    }
 }

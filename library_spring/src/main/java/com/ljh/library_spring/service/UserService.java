@@ -25,4 +25,7 @@ public interface UserService {
     Result changePassword(PasswordForm passwordForm);
     //用户修改自身信息
     Result changeInfoByUser(User user);
+
+    Result getCommonData(Integer UID);
+
 }

@@ -15,4 +15,8 @@ public interface CommentService {
     Result addComment(Comment comment);
 
     Result getCommentList(String commentTargetType, String commentTargetId);
+
+    Result getUserComments(String uid);
+
+    Result deleteComment(Integer commentId);
 }

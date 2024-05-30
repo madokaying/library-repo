@@ -1,13 +1,11 @@
 package com.ljh.library_spring.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -23,7 +21,7 @@ public class Comment {
     /**
      * 评论id
      */
-    @TableId
+    @TableId(type = IdType.AUTO)
     private Integer commentId;
     /**
      * 评论内容
@@ -33,7 +31,7 @@ public class Comment {
      * 评论时间
      */
     @TableField(fill = FieldFill.INSERT)
-    private Date createdTime;
+    private LocalDateTime createdTime;
     /**
      * 评论对象的id
      */

@@ -117,4 +117,32 @@ public class BookServiceImpl implements BookService {
         List<String> tags = bookMapper.getTagsOfBookById(bookId);
         return new Result(200,"获取图书标签成功",tags);
     }
+
+    public Result collectBook(Integer bookId, Integer userId) {
+        if (bookMapper.collectBook(bookId,userId) == 1){
+            return new Result(200,"收藏成功");
+        }
+        return new Result(400,"收藏失败，请联系管理员");
+    }
+
+    public Result cancelCollectBook(Integer bookId, Integer userId) {
+        if (bookMapper.cancelCollectBook(bookId,userId) == 1){
+            return new Result(200,"取消收藏成功");
+        }
+        return new Result(400,"取消收藏失败，请联系管理员");
+    }
+
+    public Result isCollectedBook(Integer bookId, Integer userId) {
+        if (bookMapper.judgeBookIsCollected(bookId,userId) == 1){
+            return new Result(200,"已收藏");
+        }
+        return new Result(400,"未收藏");
+    }
+
+    public Result getMyCollectBooks(Integer userId) {
+        List<TbBook> myCollectBooks = bookMapper.getMyCollectBooks(userId);
+        return new Result<>(200,"获取我的收藏成功",myCollectBooks);
+    }
+
+
 }

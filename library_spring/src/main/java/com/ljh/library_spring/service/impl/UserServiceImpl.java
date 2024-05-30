@@ -2,9 +2,10 @@ package com.ljh.library_spring.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.ljh.library_spring.entity.PasswordForm;
-import com.ljh.library_spring.entity.Result;
-import com.ljh.library_spring.entity.User;
+import com.ljh.library_spring.entity.*;
+import com.ljh.library_spring.mapper.BookMapper;
+import com.ljh.library_spring.mapper.CommentMapper;
+import com.ljh.library_spring.mapper.PostMapper;
 import com.ljh.library_spring.mapper.UserMapper;
 import com.ljh.library_spring.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,8 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -98,10 +99,14 @@ public class UserServiceImpl implements UserService {
                 String oldAvatarPath = user.getAvatar();
                 //将取得的访问地址替换成本地地址
                 String deleteAvatarPath = oldAvatarPath.replaceAll(imgSRC,imgURL);
-                File avatarFile = new File(deleteAvatarPath);
-                //若该路径下的是文件且存在，则删除
-                if (avatarFile.isFile() && avatarFile.exists()){
-                    avatarFile.delete();
+                //如果头像是系统默认头像，则不执行删除
+                String defaultAvatar = imgURL + "defaultAvatar.jpg";
+                if (!defaultAvatar.equals(deleteAvatarPath)){
+                    File avatarFile = new File(deleteAvatarPath);
+                    //若该路径下的是文件且存在，则删除
+                    if (avatarFile.isFile() && avatarFile.exists()){
+                        avatarFile.delete();
+                    }
                 }
                 //前端访问的图片路径
                 String src = imgSRC + uniqueFileName;
@@ -114,10 +119,14 @@ public class UserServiceImpl implements UserService {
                 String oldBackgroundPath = user.getBackground();
                 //将取得的访问地址替换成本地地址
                 String deleteBackgroundPath = oldBackgroundPath.replaceAll(imgSRC,imgURL);
-                File backgroundFile = new File(deleteBackgroundPath);
-                //若该路径下的是文件且存在，则删除
-                if (backgroundFile.isFile() && backgroundFile.exists()){
-                    backgroundFile.delete();
+                //如果是系统默认背景则不删除
+                String defaultBackground = imgURL + "defaultBackground.jpg";
+                if (!defaultBackground.equals(deleteBackgroundPath)){
+                    File backgroundFile = new File(deleteBackgroundPath);
+                    //若该路径下的是文件且存在，则删除
+                    if (backgroundFile.isFile() && backgroundFile.exists()){
+                        backgroundFile.delete();
+                    }
                 }
                 //前端访问的图片路径
                 String src = imgSRC + uniqueFileName;
@@ -169,4 +178,10 @@ public class UserServiceImpl implements UserService {
         }
         return new Result(401,"数据修改失败，请联系管理员解决");
     }
+
+    //TODO 通过用户id获取到用户四项基本数据的数量（评论/已购的书/帖子/收藏）
+    public Result getCommonData(Integer UID) {
+        return null;
+    }
+
 }

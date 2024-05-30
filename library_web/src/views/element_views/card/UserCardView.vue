@@ -74,7 +74,7 @@
 <script>
 import http from '@/utils/http';
 import userBackground from '@/assets/images/defaultBackground.jpg';
-import userAvatar from '@/assets/images/7cac2dee-91ce-48c4-b1df-fcdac4940b3b.jpeg';
+import userAvatar from '@/assets/images/defaultAvatar.jpg';
 
 export default {
   name: "LoginMiniView",

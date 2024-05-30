@@ -10,4 +10,12 @@ import java.util.List;
 //extends BaseMapper是mybatis-plus的内容
 public interface BookMapper extends BaseMapper<TbBook> {
     List<String> getTagsOfBookById(Integer bookId);
+
+    Integer collectBook(Integer bookId,Integer userId);
+
+    Integer cancelCollectBook(Integer bookId,Integer userId);
+
+    Integer judgeBookIsCollected(Integer bookId,Integer userId);
+
+    List<TbBook> getMyCollectBooks(Integer userId);
 }

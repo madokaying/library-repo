@@ -38,7 +38,7 @@
         </div>
       </div>
       <div class="my-info">
-        <span class="my-nickname"><strong>{{ userInfo.nickname }}</strong></span>
+        <span class="my-nickname">{{ userInfo.nickname }}</span>
         <span class="my-role" v-if="userInfo.role === '管理员'"
               style="background-color: #ff5700;color: white;border-radius: 6px;padding: 1px"> {{ userInfo.role }}<i
             class="el-icon-check"></i></span>
@@ -51,7 +51,7 @@
         <span class="my-signature"><i class="el-icon-user-solid"
                                       style="font-size: 17px"></i>{{ userInfo.signature }}</span>
         <!--                我的消息-->
-        <div class="my-message" @click="showMyMessage">
+        <div class="my-message" @click="toMyMessage">
           <i class="el-icon-bell" style="font-size: 25px"></i>
         </div>
       </div>
@@ -66,10 +66,10 @@
             <div style="line-height: 18px">
               <table style="width: 100%">
                 <tr style="height: 50px;font-size: 30px">
-                  <td>0</td>
-                  <td>0</td>
-                  <td>0</td>
-                  <td>0</td>
+                  <td>{{commonData.myComments}}</td>
+                  <td>{{commonData.myBooks}}</td>
+                  <td>{{ commonData.myPost }}</td>
+                  <td>{{commonData.myCollection}}</td>
                 </tr>
                 <tr style="height: 20px">
                   <td>评论</td>
@@ -125,7 +125,7 @@
                 </div>
               </el-col>
               <el-col :span="6">
-                <div class="basic-menu-item" @click="toMyIssue">
+                <div class="basic-menu-item" @click="toMyPost">
                   <div>
                     <svg class="icon" aria-hidden="true">
                       <use xlink:href="#icon-posts"/>
@@ -160,6 +160,47 @@
           <!--                    默认展示个人的信息，表现为form表单的信息，实现展示信息的同时方便在已有信息基础上修改-->
           <div v-if="units === 'personalInfo'">
             <personal-info></personal-info>
+          </div>
+
+          <div v-if="units === 'myMessage'">
+            <div class="my-message-wrapper">
+              <div v-if="myMessage.length !== 0">
+
+              </div>
+              <div v-else>
+                <el-empty description="暂时还没有消息" :image-size="300"></el-empty>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="units === 'myComments'">
+            <my-comments></my-comments>
+          </div>
+
+          <div v-if="units === 'myBookCollection'">
+            <div class="my-book-collection-wrapper">
+              <div v-if="myBooks.length !== 0">
+<!--                这里需要有借的书和买的书，还得有借书申请和进度-->
+              </div>
+              <div v-else>
+                <el-empty description="书库内还没有书籍哦" :image-size="300"></el-empty>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="units === 'myPost'">
+            <div class="my-post-wrapper">
+              <div v-if="myPost.length !== 0">
+
+              </div>
+              <div v-else>
+                <el-empty description="暂时还没有发过帖子哦" :image-size="300"></el-empty>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="units === 'myCollection'">
+            <my-collect-book></my-collect-book>
           </div>
         </el-col>
       </el-row>
@@ -207,6 +248,8 @@ import http from "@/utils/http";
 import {VueCropper} from 'vue-cropper'
 import PersonalInfo from "@/views/element_views/menu/PersonalInfo.vue";
 import {getAndSyncUserInfo} from '@/utils/getAndSyncUserInfo'
+import MyComments from "@/views/element_views/menu/MyComments.vue";
+import MyCollectBook from "@/views/element_views/menu/MyCollectBook.vue";
 
 export default {
   name: "MyInfo",
@@ -214,6 +257,8 @@ export default {
     'units',
   ],
   components: {
+    MyCollectBook,
+    MyComments,
     VueCropper,
     PersonalInfo,
   },
@@ -241,6 +286,12 @@ export default {
         fixedBox: true, // 固定截图框大小 不允许改变
         changeType: 'avatar',//设置上传的是头像还是背景,默认上传头像
       },
+      commonData: {
+        myComments:0,
+        myBooks:0,
+        myPost:0,
+        myCollection:0,
+      },
       changeAvatarTips: false,
       fileType: 'jpg',
       visible: false,
@@ -265,10 +316,6 @@ export default {
       this.options.autoCropHeight = 200;
       this.options.img = JSON.parse(localStorage.getItem('userInfo')).avatar;
       this.dialog.uploadDialog = true;
-    },
-    //TODO 跳转到显示自己收到的信息界面
-    showMyMessage() {
-
     },
 
     submitUpload() {
@@ -354,33 +401,45 @@ export default {
       this.$router.push({name: 'myInfo', params: {units: 'myBookCollection'}});
     },
     //跳转到我的帖子
-    toMyIssue() {
-      this.$router.push({name: 'myInfo', params: {units: 'myPosts'}});
+    toMyPost() {
+      this.$router.push({name: 'myInfo', params: {units: 'myPost'}});
     },
     //跳转到我的收藏
     toMyCollection() {
       this.$router.push({name: 'myInfo', params: {units: 'myCollection'}});
     },
-  },
-  mounted() {
-    //安全性判断,防止未登录输入路由跳转
-    if (localStorage.getItem('userInfo') != null) {
-      //判断用户登录是否合法(主要判断token是否过期了)
-      http.post('/user/testToken').then(res => {
-        //过期则跳转回首页，并给出提示
-        if (res.data.code !== 200) {
-          this.$message.error('登录已过期，请重新登录后访问');
-          localStorage.clear();
-          this.$store.dispatch('syncBookInfo', '/book/getBooksList');
-          this.$router.push({name: 'mainBody', params: {units: 'homePage'}});
+
+    isSafe(){
+      //安全性判断,防止未登录输入路由跳转
+      if (localStorage.getItem('userInfo') != null) {
+        //判断用户登录是否合法(主要判断token是否过期了)
+        http.post('/user/testToken').then(res => {
+          //过期则跳转回首页，并给出提示
+          if (res.data.code !== 200) {
+            this.$message.error('登录已过期，请重新登录后访问');
+            localStorage.clear();
+            this.$store.dispatch('syncBookInfo', '/book/getBooksList');
+            this.$router.push({name: 'mainBody', params: {units: 'homePage'}});
+          }
+        })
+      } else {
+        //若localStorage内没有用户信息，则直接返回首页并给出提示
+        this.$message.error('还没登录哦，请重新登录后访问');
+        this.$store.dispatch('syncBookInfo', '/book/getBooksList');
+        this.$router.push({name: 'mainBody', params: {units: 'homePage'}});
+      }
+    },
+    //获取CommonData
+    getCommonData() {
+      http.post(`/user/getCommonData?UID=${JSON.parse(localStorage.getItem('userInfo')).UID}`).then(res => {
+        if (res.data.code === 200){
+          this.commonData = res.data.data;
         }
       })
-    } else {
-      //若localStorage内没有用户信息，则直接返回首页并给出提示
-      this.$message.error('还没登录哦，请重新登录后访问');
-      this.$store.dispatch('syncBookInfo', '/book/getBooksList');
-      this.$router.push({name: 'mainBody', params: {units: 'homePage'}});
-    }
+    },
+  },
+  mounted() {
+    this.isSafe();
   }
 }
 </script>
@@ -444,7 +503,6 @@ export default {
   top: 25px;
   left: 210px;
   font-size: 30px;
-  font-family: "楷体";
 }
 
 .my-signature {
@@ -528,7 +586,7 @@ export default {
   backdrop-filter: blur(1px);
   padding-top: 15px;
   line-height: 0;
-  font-size: 15px;
+  font-size: 18px;
   cursor: default;
 }
 
@@ -545,9 +603,10 @@ export default {
 .basic-menu-item span {
   position: relative;
   top: 4px;
-  font-size: 12px;
+  font-size: 15px;
   margin-left: -5px
 }
+
 </style>
 
 <style>

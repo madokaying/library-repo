@@ -72,13 +72,16 @@
               <!--操作按钮区域-->
               <el-button type="primary" plain>借书申请</el-button>
               <el-button type="primary" plain>购买</el-button>
-              <el-button type="primary" plain>收藏</el-button>
+              <el-button type="primary" :icon="starIcon" @click="starBook" plain>
+                <span v-if="isStarred">已收藏</span>
+                <span v-else>收藏</span>
+              </el-button>
               <el-button v-if="readingRecord !== null" @click="goChapter(readingRecord)" type="primary" plain>继续阅读</el-button>
             </div>
           </div>
         </div>
         <div ref="userComments">
-          <comments-box :bookId="bookId" :type="1"></comments-box>
+          <comments-box :id="bookId" :type="1" :bookDetail="this"></comments-box>
         </div>
         <div
             class="catalog"
@@ -87,7 +90,7 @@
           <div v-if="tableOfContents.length !== 0" style="overflow-y: auto;height: 600px">
             <el-row style="text-align: left;margin: 20px">
               <span style="font-size: 30px;margin-right: 20px"><b>目录</b></span>
-              <span v-if="readingRecord !== null" style="border-radius: 10px;background-color: #409EFF;color: white;padding: 5px 10px;font-size: 13px">
+              <span v-if="readingRecord !== null" style="border-left: #409EFF solid 4px;color: #409EFF;font-size: 18px">
                 共{{tableOfContents.length}}章，上次阅读至**{{readingRecord.chapter}}**
               </span>
               <span v-else style="border-radius: 10px;background-color: #409EFF;color: white;padding: 5px 10px;font-size: 13px">共{{tableOfContents.length}}章，尚未开始阅读</span>
@@ -151,6 +154,8 @@ export default {
       maxRetryTime: 3,/*重试次数*/
       retryTime: 0,/*重试次数*/
       readingRecord: JSON.parse(localStorage.getItem(JSON.stringify(this.bookId))),/*阅读记录*/
+      starIcon: 'el-icon-star-off',/*收藏图标*/
+      isStarred: false,/*是否收藏*/
     }
   },
   methods: {
@@ -379,9 +384,62 @@ export default {
         }
       })
     },
+    //判断该书是否已经被此用户收藏
+    judgeIsStar(){
+      const UID = JSON.parse(localStorage.getItem('userInfo')).UID;
+      http.post(`book/isCollectedBook?bookId=${this.bookId}&userId=${UID}`).then(res => {
+        if (res.data.code === 200){
+          this.isStarred = true;
+          this.starIcon = 'el-icon-star-on';
+        }
+      })
+    },
+    starBook(){
+      const UID = JSON.parse(localStorage.getItem('userInfo')).UID;
+      //如果手机已被收藏，点击则取消收藏，否则反之
+      if (this.isStarred){
+        http.post(`book/cancelCollectBook?bookId=${this.bookId}&userId=${UID}`).then(res =>{
+          if (res.data.code === 200){
+            this.isStarred = false;
+            this.starIcon = 'el-icon-star-off';
+            this.$message({
+              message: '取消收藏成功',
+              type: 'success',
+              duration: '2000',
+            })
+          } else {
+            this.$message({
+              message: res.data.msg,
+              type: 'error',
+              duration: '2000',
+            })
+          }
+        })
+      } else {
+        http.post(`book/collectBook?bookId=${this.bookId}&userId=${UID}`).then(res =>{
+          if (res.data.code === 200){
+            this.isStarred = true;
+            this.starIcon = 'el-icon-star-on';
+            this.$message({
+              message: '收藏成功',
+              type: 'success',
+              duration: '2000',
+            })
+          } else {
+            this.$message({
+              message: res.data.msg,
+              type: 'error',
+              duration:'2000',
+            })
+          }
+        })
+      }
+    },
   },
-
   mounted() {
+    //判断书籍是否已被该用户收藏
+    this.judgeIsStar();
+    //从本地读取阅读记录
     this.getReadingRecord();
     /*访问后端数据库获取书籍的基本信息*/
     this.getBookDetailById();

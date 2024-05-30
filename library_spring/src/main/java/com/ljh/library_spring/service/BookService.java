@@ -53,4 +53,11 @@ public interface BookService {
      */
     Result getTagsOfBookById(Integer bookId);
 
+    Result collectBook(Integer bookId, Integer userId);
+
+    Result cancelCollectBook(Integer bookId, Integer userId);
+
+    Result isCollectedBook(Integer bookId, Integer userId);
+
+    Result getMyCollectBooks(Integer userId);
 }

@@ -9,7 +9,6 @@
 
 <script>
 import HomeView from "@/views/HomeView.vue";
-
 export default {
   components: {
     HomeView
@@ -24,10 +23,17 @@ export default {
 <style>
 
 body {
+  font-family: "MaoKenWangXingYuan",serif;
+  font-size: 18px;
   height: 100%;
   overflow: auto;
   /*设置margin为0可防止出现两个滚动条造成窗口抖动*/
   margin: 0;
+}
+
+.el-button,.el-input .el-input__inner,.el-input .el-input__placeholder {
+  font-family: "MaoKenWangXingYuan",serif;
+  font-size: 16px;
 }
 
 /*

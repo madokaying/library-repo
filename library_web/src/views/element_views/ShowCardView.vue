@@ -58,18 +58,21 @@ export default {
       this.$store.dispatch('syncBookInfo', url);
       this.loading = false;
     },
+    getCurrentPage(){
+      // 从 sessionStorage 获取上次的 currentPage 值，如果存在则应用
+      const storedPage = JSON.parse(sessionStorage.getItem('currentPage'));
+      if (storedPage) {
+        this.currentPage = storedPage; // 设置当前页
+        this.getPageNum(storedPage); // 根据存储的页码加载数据
+      } else {
+        // 如果没有存储的页码，则默认加载第一页数据
+        this.getPageNum(this.currentPage);
+      }
+      this.loading = false;
+    }
   },
   mounted() {
-    // 从 sessionStorage 获取上次的 currentPage 值，如果存在则应用
-    const storedPage = JSON.parse(sessionStorage.getItem('currentPage'));
-    if (storedPage) {
-      this.currentPage = storedPage; // 设置当前页
-      this.getPageNum(storedPage); // 根据存储的页码加载数据
-    } else {
-      // 如果没有存储的页码，则默认加载第一页数据
-      this.getPageNum(this.currentPage);
-    }
-    this.loading = false;
+    this.getCurrentPage();
   }
 }
 </script>

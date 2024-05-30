@@ -108,6 +108,8 @@ export default {
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       if (value.length > 64) {
         return callback(new Error('邮箱长度不能大于64'));
+      } else if (value === ''){
+        callback();
       } else if (!emailRegex.test(value)) {
         return callback(new Error('请输入正确的邮箱地址'));
       } else {
@@ -265,4 +267,9 @@ export default {
     transition: all 0.9s ease;
   }
 }
+
+.el-form-item__label,.el-descriptions-item__label {
+  font-size: 16px;
+}
+
 </style>

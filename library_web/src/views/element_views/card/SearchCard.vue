@@ -35,6 +35,11 @@ export default {
 </script>
 
 <style scoped>
+
+input {
+  font-family: MaoKenWangXingYuan, sans-serif;
+}
+
 .search_card {
   height: 300px;
   border-radius: 20px;
