@@ -16,7 +16,7 @@ public interface CommentService {
 
     Result getCommentList(String commentTargetType, String commentTargetId);
 
-    Result getUserComments(String uid);
+    Result getUserComments(String uid,String type);
 
     Result deleteComment(Integer commentId);
 }

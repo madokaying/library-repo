@@ -29,7 +29,7 @@
           </div>
         </el-image>
         <div class="show-change-avatar-tips" :class="{'up-after-show':changeAvatarTips}">
-          <div>
+          <div style="color: deeppink">
             <div style="margin-bottom: 10px">
               <i class="el-icon-camera" style="font-size: 20px"></i>
             </div>
@@ -39,27 +39,30 @@
       </div>
       <div class="my-info">
         <span class="my-nickname">{{ userInfo.nickname }}</span>
-        <span class="my-role" v-if="userInfo.role === '管理员'"
-              style="background-color: #ff5700;color: white;border-radius: 6px;padding: 1px"> {{ userInfo.role }}<i
-            class="el-icon-check"></i></span>
-        <span class="my-role" v-else-if="userInfo.role === '实名用户'"
-              style="background-color: #2eff1d;color: white;border-radius: 6px;padding: 1px"> {{ userInfo.role }}<i
-            class="el-icon-circle-check"></i></span>
-        <span class="my-role" v-else-if="userInfo.role === '未实名用户'"
-              style="background-color: #ff5c5c;color: white;border-radius: 6px;padding: 1px"> {{ userInfo.role }}<i
-            class="el-icon-circle-close"></i></span>
-        <span class="my-signature"><i class="el-icon-user-solid"
-                                      style="font-size: 17px"></i>{{ userInfo.signature }}</span>
+        <span class="my-role" v-if="userInfo.role === '管理员'" style="background-color: deeppink;color: white;border-radius: 6px;padding: 2px 8px">
+          <i class="el-icon-s-help"></i>
+          {{ userInfo.role }}
+        </span>
+        <span class="my-role" v-else-if="userInfo.role === '实名用户'" style="background-color: #2eff1d;color: white;border-radius: 6px;padding: 2px 8px">
+          {{ userInfo.role }}
+          <i class="el-icon-circle-check"></i>
+        </span>
+        <span class="my-role" v-else-if="userInfo.role === '未实名用户'" style="background-color: #ff5c5c;color: white;border-radius: 6px;padding: 2px 8px">
+          {{ userInfo.role }}
+          <i class="el-icon-circle-close"></i>
+        </span>
+        <span class="my-signature">
+          <i class="el-icon-user-solid" style="font-size: 17px"></i>
+          {{ userInfo.signature }}
+        </span>
         <!--                我的消息-->
         <div class="my-message" @click="toMyMessage">
           <i class="el-icon-bell" style="font-size: 25px"></i>
         </div>
       </div>
     </div>
-    <!--        TODO 可操作处的展示,把我的个人信息，我的书库，我的借阅记录，我的评论，已借书籍，借阅申请等功能加入到这里-->
     <div>
       <el-row>
-        <!--        TODO 用户可选选项-->
         <el-col :span="6">
           <!--                    通用部分-->
           <div class="common-data">
@@ -87,19 +90,15 @@
               <el-col :span="6">
                 <div class="basic-menu-item" @click="toPersonalInfo">
                   <div>
-                    <svg class="icon" aria-hidden="true">
-                      <use xlink:href="#icon-user"/>
-                    </svg>
+                    <i class="el-icon-user" style="font-size: 40px"></i>
                   </div>
-                  <span>个人资料</span>
+                  <span>个人信息</span>
                 </div>
               </el-col>
               <el-col :span="6">
                 <div class="basic-menu-item" @click="toMyMessage">
                   <div>
-                    <svg class="icon" aria-hidden="true">
-                      <use xlink:href="#icon-notice"/>
-                    </svg>
+                    <i class="el-icon-chat-line-square" style="font-size: 40px"></i>
                   </div>
                   <span>我的消息</span>
                 </div>
@@ -107,19 +106,15 @@
               <el-col :span="6">
                 <div class="basic-menu-item" @click="toMyComments">
                   <div>
-                    <svg class="icon" aria-hidden="true">
-                      <use xlink:href="#icon-comment"/>
-                    </svg>
+                    <i class="el-icon-edit-outline" style="font-size: 40px"></i>
                   </div>
                   <span>我的评论</span>
                 </div>
               </el-col>
               <el-col :span="6">
-                <div class="basic-menu-item" @click="toMyBookCollection">
+                <div class="basic-menu-item" @click="toMyLibrary">
                   <div>
-                    <svg class="icon" aria-hidden="true">
-                      <use xlink:href="#icon-book-collection"/>
-                    </svg>
+                    <i class="el-icon-reading" style="font-size: 40px"></i>
                   </div>
                   <span>我的书库</span>
                 </div>
@@ -127,9 +122,7 @@
               <el-col :span="6">
                 <div class="basic-menu-item" @click="toMyPost">
                   <div>
-                    <svg class="icon" aria-hidden="true">
-                      <use xlink:href="#icon-posts"/>
-                    </svg>
+                    <i class="el-icon-notebook-2" style="font-size: 40px"></i>
                   </div>
                   <span>我的帖子</span>
                 </div>
@@ -137,25 +130,73 @@
               <el-col :span="6">
                 <div class="basic-menu-item" @click="toMyCollection">
                   <div>
-                    <svg class="icon" aria-hidden="true">
-                      <use xlink:href="#icon-collection1"/>
-                    </svg>
+                    <i class="el-icon-collection" style="font-size: 40px"></i>
                   </div>
                   <span>我的收藏</span>
                 </div>
               </el-col>
             </el-row>
-
           </div>
           <!--                    TODO 细分部分-->
           <div v-if="userInfo.role === '管理员'">
-
+            <div class="basic-menu-header">管理员权限</div>
+            <div class="basic-menu">
+              <el-row>
+                <el-col :span="6">
+                  <div class="basic-menu-item">
+                    <div>
+                      <i class="el-icon-s-management" style="font-size: 40px"></i>
+                    </div>
+                    <span>书籍管理</span>
+                  </div>
+                </el-col>
+                <el-col :span="6">
+                  <div class="basic-menu-item">
+                    <div>
+                      <i class="el-icon-s-custom" style="font-size: 40px"></i>
+                    </div>
+                    <span>用户管理</span>
+                  </div>
+                </el-col>
+                <el-col :span="6">
+                  <div class="basic-menu-item">
+                    <div>
+                      <i class="el-icon-s-comment" style="font-size: 40px"></i>
+                    </div>
+                    <span>评论管理</span>
+                  </div>
+                </el-col>
+                <el-col :span="6">
+                  <div class="basic-menu-item"  @click="toManageBorrow">
+                    <div>
+                      <i class="el-icon-s-shop" style="font-size: 40px"></i>
+                    </div>
+                    <span>借阅管理</span>
+                  </div>
+                </el-col>
+                <el-col :span="6">
+                  <div class="basic-menu-item">
+                    <div>
+                      <i class="el-icon-s-marketing" style="font-size: 40px"></i>
+                    </div>
+                    <span>帖子管理</span>
+                  </div>
+                </el-col>
+                <el-col :span="6">
+                  <div class="basic-menu-item">
+                    <div>
+                      <i class="el-icon-s-data" style="font-size: 40px"></i>
+                    </div>
+                    <span>数据可视化</span>
+                  </div>
+                </el-col>
+              </el-row>
+            </div>
           </div>
           <div v-if="userInfo.role === '未实名用户' || userInfo.role === '实名用户'">
             <!--                 由于目前角色结构简单，基本除了用户就是管理员，还未添加别的角色，因此角色这栏预计先空着，无特殊功能，用户的操作菜单全在通用部分-->
           </div>
         </el-col>
-        <!--        TODO 选项所展示内容-->
         <el-col :span="18">
           <!--                    默认展示个人的信息，表现为form表单的信息，实现展示信息的同时方便在已有信息基础上修改-->
           <div v-if="units === 'personalInfo'">
@@ -163,44 +204,44 @@
           </div>
 
           <div v-if="units === 'myMessage'">
-            <div class="my-message-wrapper">
-              <div v-if="myMessage.length !== 0">
 
-              </div>
-              <div v-else>
-                <el-empty description="暂时还没有消息" :image-size="300"></el-empty>
-              </div>
-            </div>
           </div>
 
           <div v-if="units === 'myComments'">
             <my-comments></my-comments>
           </div>
 
-          <div v-if="units === 'myBookCollection'">
-            <div class="my-book-collection-wrapper">
-              <div v-if="myBooks.length !== 0">
-<!--                这里需要有借的书和买的书，还得有借书申请和进度-->
-              </div>
-              <div v-else>
-                <el-empty description="书库内还没有书籍哦" :image-size="300"></el-empty>
-              </div>
-            </div>
+          <div v-if="units === 'myLibrary'">
+            <my-library></my-library>
           </div>
 
           <div v-if="units === 'myPost'">
-            <div class="my-post-wrapper">
-              <div v-if="myPost.length !== 0">
 
-              </div>
-              <div v-else>
-                <el-empty description="暂时还没有发过帖子哦" :image-size="300"></el-empty>
-              </div>
-            </div>
           </div>
 
           <div v-if="units === 'myCollection'">
             <my-collect-book></my-collect-book>
+          </div>
+
+<!--          管理员部分-->
+          <div v-if="units === 'manageBook'">
+
+          </div>
+
+          <div v-if="units === 'manageUser'">
+
+          </div>
+
+          <div v-if="units === 'manageComment'">
+
+          </div>
+
+          <div v-if="units === 'manageBorrow'">
+            <admin-manage-borrow-list></admin-manage-borrow-list>
+          </div>
+
+          <div v-if="units === 'managePost'">
+
           </div>
         </el-col>
       </el-row>
@@ -250,6 +291,8 @@ import PersonalInfo from "@/views/element_views/menu/PersonalInfo.vue";
 import {getAndSyncUserInfo} from '@/utils/getAndSyncUserInfo'
 import MyComments from "@/views/element_views/menu/MyComments.vue";
 import MyCollectBook from "@/views/element_views/menu/MyCollectBook.vue";
+import MyLibrary from "@/views/element_views/menu/MyLibrary.vue";
+import AdminManageBorrowList from "@/views/admin/AdminManageBorrowList.vue";
 
 export default {
   name: "MyInfo",
@@ -257,6 +300,8 @@ export default {
     'units',
   ],
   components: {
+    AdminManageBorrowList,
+    MyLibrary,
     MyCollectBook,
     MyComments,
     VueCropper,
@@ -390,25 +435,38 @@ export default {
     },
     //跳转到我的消息部分
     toMyMessage() {
-      this.$router.push({name: 'myInfo', params: {units: 'myMessage'}});
+      this.$notify({
+        title: '抱歉',
+        message: '该功能未完善中，待帖子功能实现后开放...',
+        showClose: false
+      });
+      //this.$router.push({name: 'myInfo', params: {units: 'myMessage'}});
     },
     //跳转到我的评论部分
     toMyComments() {
       this.$router.push({name: 'myInfo', params: {units: 'myComments'}});
     },
     //跳转到我的书库
-    toMyBookCollection() {
-      this.$router.push({name: 'myInfo', params: {units: 'myBookCollection'}});
+    toMyLibrary() {
+      this.$router.push({name: 'myInfo', params: {units: 'myLibrary'}});
     },
     //跳转到我的帖子
     toMyPost() {
-      this.$router.push({name: 'myInfo', params: {units: 'myPost'}});
+      this.$notify({
+        title: '抱歉',
+        message: '该功能仍在施工中，尚未对外开放...',
+        showClose: false
+      });
+      //this.$router.push({name: 'myInfo', params: {units: 'myPost'}});
     },
     //跳转到我的收藏
     toMyCollection() {
       this.$router.push({name: 'myInfo', params: {units: 'myCollection'}});
     },
-
+    //跳转到管理员管理借阅信息的界面
+    toManageBorrow(){
+      this.$router.push({name: 'myInfo', params: {units: 'manageBorrow'}});
+    },
     isSafe(){
       //安全性判断,防止未登录输入路由跳转
       if (localStorage.getItem('userInfo') != null) {
@@ -529,7 +587,7 @@ export default {
 
 .my-role {
   position: absolute;
-  bottom: 15px;
+  bottom: 13px;
   left: 40px;
 }
 
@@ -593,12 +651,16 @@ export default {
 .basic-menu-item {
   height: 65px;
   cursor: pointer;
+  &:hover {
+    color: #ff5c5c;
+    transition: all 0.4s ease;
+  }
 }
 
-.basic-menu-item div svg {
+/*.basic-menu-item div svg {
   width: 55%;
   height: 50px;
-}
+}*/
 
 .basic-menu-item span {
   position: relative;

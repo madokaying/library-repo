@@ -4,7 +4,7 @@ import com.ljh.library_spring.entity.LoginUser;
 import com.ljh.library_spring.entity.Result;
 import com.ljh.library_spring.entity.User;
 import com.ljh.library_spring.mapper.UserMapper;
-import com.ljh.library_spring.service.LoginServcie;
+import com.ljh.library_spring.service.LoginService;
 import com.ljh.library_spring.utils.JwtUtil;
 import com.ljh.library_spring.utils.RedisCache;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 @Service
-public class LoginServiceImpl implements LoginServcie {
+public class LoginServiceImpl implements LoginService {
 
     @Resource
     private AuthenticationManager authenticationManager;
@@ -66,4 +66,3 @@ public class LoginServiceImpl implements LoginServcie {
         return new Result(200,"退出成功");
     }
 }
- 

@@ -13,6 +13,7 @@ import javax.annotation.Resource;
  * @author makejava
  * @since 2024-05-22 12:14:40
  */
+@CrossOrigin
 @RestController
 @RequestMapping("comment")
 public class CommentController {
@@ -40,7 +41,14 @@ public class CommentController {
     //获取评论数据，接收用户UID，若UID为""，则返回所有的评论数据（给管理员获取所有评论使用）
     @PostMapping("/getUserComments")
     public Result getUserComments(@RequestParam(defaultValue = "")String UID){
-        return commentService.getUserComments(UID);
+        String comment = "comment";
+        return commentService.getUserComments(UID,comment);
+    }
+
+    @PostMapping("/getMyMessage")
+    public Result getMyMessage(@RequestParam(defaultValue = "")String UID){
+        String message = "message";
+        return commentService.getUserComments(UID,message);
     }
 }
 

@@ -70,8 +70,8 @@
             </p>
             <div>
               <!--操作按钮区域-->
-              <el-button type="primary" plain>借书申请</el-button>
-              <el-button type="primary" plain>购买</el-button>
+              <el-button type="primary" plain @click="borrowBook">借书申请</el-button>
+              <el-button type="primary" plain @click="buyBook">购买</el-button>
               <el-button type="primary" :icon="starIcon" @click="starBook" plain>
                 <span v-if="isStarred">已收藏</span>
                 <span v-else>收藏</span>
@@ -394,6 +394,20 @@ export default {
         }
       })
     },
+    //获取该书的收藏人数
+    getCollectTimes(){
+      http.post(`/book/getBookCollectedNumber?bookId=${this.bookId}`).then(res => {
+        if(res.data.code === 200){
+          this.collectTimes = res.data.data;
+        } else {
+          this.$message({
+            message: '获取收藏数失败',
+            type: 'error',
+            duration: '2000',
+          })
+        }
+      })
+    },
     starBook(){
       const UID = JSON.parse(localStorage.getItem('userInfo')).UID;
       //如果手机已被收藏，点击则取消收藏，否则反之
@@ -435,8 +449,52 @@ export default {
         })
       }
     },
+    //借书申请功能
+    borrowBook(){
+      const role = JSON.parse(localStorage.getItem('userInfo')).role;
+      const maxBorrow = JSON.parse(localStorage.getItem('userInfo')).maxBorrow;
+      if (role === '未实名用户'){
+        this.$message({
+          message: '您还未实名认证，请先线下实名认证后申请',
+          type: 'warning',
+          duration: '2000',
+        });
+      } else if(maxBorrow < 1){
+        this.$message({
+          message: '您已达到最大借书数量，请先还书后申请',
+          type: 'warning',
+          duration: '2000',
+        });
+      }else {
+        const UID = JSON.parse(localStorage.getItem('userInfo')).UID;
+        http.post(`user/borrowBook?bookId=${this.bookId}&userId=${UID}`).then(res => {
+          if (res.data.code === 200){
+            this.$message({
+              message:'申请成功，请去我的书库确认申请进度',
+              type: 'success',
+              duration: '2000',
+            })
+          } else {
+            this.$message({
+              message: res.data.msg,
+              type: 'error',
+              duration: '2000',
+            })
+          }
+        })
+      }
+    },
+    buyBook(){
+      this.$message({
+        message: '代码还没写呢，别点了',
+        type: 'error',
+        duration: '2000',
+      });
+    }
   },
   mounted() {
+    //获取该书收藏人数
+    this.getCollectTimes();
     //判断书籍是否已被该用户收藏
     this.judgeIsStar();
     //从本地读取阅读记录

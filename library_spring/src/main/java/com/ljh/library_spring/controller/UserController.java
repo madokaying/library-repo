@@ -65,4 +65,15 @@ public class UserController{
         return userService.getCommonData(UID);
     }
 
+    //用户申请借书
+    @PostMapping("/borrowBook")
+    public Result borrowBook(Integer bookId,Integer userId){
+        return userService.borrowBook(bookId,userId);
+    }
+
+    //获取自身的申请表
+//    @PostMapping("/getMyBorrowList")
+//    public Result getMyBorrowList(Integer currentPage,Integer pageSize){
+//        return userService.getMyBorrowList(currentPage,pageSize);
+//    }
 }

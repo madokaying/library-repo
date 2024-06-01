@@ -7,18 +7,35 @@
       <div :class="{'underline':isFocus||searchName}"></div>
       <label :class="{'active':isFocus||searchName}">书籍搜索</label>
       <el-button icon="el-icon-search" class="el_btn" @click="search"></el-button>
+      <span style="position: absolute;top: 60px;left: 16px;font-size: 14px;color: deeppink;padding: 0">大家都在搜</span>
     </div>
-    <div class="tag">大家都在搜</div>
+    <div class="tag">
+      <el-row>
+        <el-col
+            :span="8"
+            v-for="(tag, index) in searchContents"
+            :key="index"
+        >
+          <el-tag @click="searchByTag(tag.searchContent)">
+            {{ tag.searchContent }}
+          </el-tag>
+        </el-col>
+      </el-row>
+    </div>
   </div>
 </template>
 
 <script>
+import http from "@/utils/http";
+
 export default {
   name: "SearchCard",
   data() {
     return {
       searchName: '',
       isFocus: false,
+      tagNum:15,
+      searchContents:[],
     }
   },
   methods: {
@@ -29,7 +46,23 @@ export default {
       } else {
         this.$message('请输入有效字段');
       }
-    }
+    },
+    getSearchContent() {
+      http.post(`/book/getSearchContent?num=${this.tagNum}`).then(res => {
+        if(res.data.code === 200){
+          this.searchContents = res.data.data;
+        } else {
+          this.$message.error('获取搜索内容失败');
+        }
+      })
+    },
+    searchByTag(tag){
+      this.searchName = tag;
+      this.search();
+    },
+  },
+  mounted() {
+    this.getSearchContent();
   }
 }
 </script>
@@ -107,12 +140,18 @@ label.active {
 }
 
 .tag {
-  align-content: center;
   position: relative;
-  height: 250px;
+  height: 220px;
+  top: 30px;
+  overflow: hidden;
 }
 
-
+.el-tag {
+  font-size: 18px;
+  &:hover {
+    cursor: pointer;
+  }
+}
 </style>
 
 <style>

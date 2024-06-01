@@ -60,4 +60,14 @@ public interface BookService {
     Result isCollectedBook(Integer bookId, Integer userId);
 
     Result getMyCollectBooks(Integer userId);
+
+    Result getTagList();
+
+    Result getBookListByTag(Integer tagId, Integer currentPage, Integer pageSize);
+
+    Result getBookRankingList(Integer currentPage, Integer pageSize);
+
+    Result getSearchContent(Integer num);
+
+    Result getBookCollectedNumber(Integer bookId);
 }

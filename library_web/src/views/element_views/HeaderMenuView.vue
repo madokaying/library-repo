@@ -9,10 +9,10 @@
             :src="url"
             :fit="fit"></el-image>
       </el-menu-item>
-      <el-menu-item index="1" @click="toHome"><i class="el-icon-s-home"></i>首页</el-menu-item>
-      <el-menu-item index="2">分类排行</el-menu-item>
-      <el-menu-item index="3">论坛</el-menu-item>
-      <el-menu-item index="4" @click="resetBook">重置书籍列表</el-menu-item>
+      <el-menu-item index="1" @click="toHome"><i class="el-icon-house"></i>首页</el-menu-item>
+      <el-menu-item index="2" @click="toCatalog"><i :class="catalogIcon"></i>分类排行</el-menu-item>
+      <el-menu-item index="3" @click="toForum"><i class="el-icon-chat-line-round"></i>论坛</el-menu-item>
+      <el-menu-item index="4" @click="resetBook"><i class="el-icon-refresh"></i>重置书籍列表</el-menu-item>
     </el-menu>
   </el-header>
 </template>
@@ -25,16 +25,32 @@ export default {
   data() {
     return {
       url: logo,
-      fit: 'scale-down'
+      fit: 'scale-down',
+      catalogIcon:'el-icon-s-fold',
     }
   },
   methods: {
     toHome() {
+      this.catalogIcon = 'el-icon-s-fold';
       this.$router.push('/');
     },
+    toCatalog(){
+      this.catalogIcon = 'el-icon-s-unfold';
+      this.$router.push('/catalogChart');
+    },
+    toForum(){
+      this.catalogIcon = 'el-icon-s-fold';
+      this.$notify({
+        title: '抱歉',
+        message: '该功能仍在施工中，尚未对外开放...',
+        showClose: false
+      });
+    },
     resetBook(){
+      this.catalogIcon = 'el-icon-s-fold';
       const url = `/book/getBooksList`;
       this.$store.dispatch('syncBookInfo', url);
+      this.$router.push('/');
     }
   }
 }

@@ -157,7 +157,7 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
-    public Result getUserComments(String userId) {
+    public Result getUserComments(String userId,String type) {
         List<Comment> comments;
         //返回全部的评论
         if ("".equals(userId)){
@@ -168,9 +168,16 @@ public class CommentServiceImpl implements CommentService {
             //只获取需要的用户的评论
             Integer UID = Integer.parseInt(userId);
             LambdaQueryWrapper<Comment> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-            lambdaQueryWrapper.eq(Comment::getUserId,UID)
-                    .eq(Comment::getDeleteFlag,0)
-                    .orderByDesc(Comment::getCreatedTime);;
+            if ("comment".equals(type)){
+                lambdaQueryWrapper.eq(Comment::getUserId,UID)
+                        .eq(Comment::getDeleteFlag,0)
+                        .orderByDesc(Comment::getCreatedTime);;
+            } else if ("message".equals(type)){
+                //TODO 由于帖子功能还没开发，此处功能若要实现会只能实现显示回复自身评论的评论，故暂时不做。该if分支代码请无视
+                lambdaQueryWrapper.eq(Comment::getUserId,UID)
+                        .eq(Comment::getDeleteFlag,0)
+                        .orderByDesc(Comment::getCreatedTime);;
+            }
             comments = commentMapper.selectList(lambdaQueryWrapper);
         }
         //对评论进行封装，获取到评论者的昵称头像以及评论对象的名字

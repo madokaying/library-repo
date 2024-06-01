@@ -28,4 +28,5 @@ public interface UserService {
 
     Result getCommonData(Integer UID);
 
+    Result borrowBook(Integer bookId, Integer userId);
 }

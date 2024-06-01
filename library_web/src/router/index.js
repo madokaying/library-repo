@@ -38,7 +38,12 @@ const routes = [
         name: 'bookDetail',
         component: () => import('@/views/element_views/BookDetail'),
         props: true,
-    }
+    },
+    {
+        path:'/catalogChart',
+        name:'catalogChart',
+        component:()=>import('@/views/element_views/CatalogChart')
+    },
 ]
 
 const router = new VueRouter({

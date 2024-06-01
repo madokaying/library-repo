@@ -1,6 +1,7 @@
 package com.ljh.library_spring.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.ljh.library_spring.entity.Tag;
 import com.ljh.library_spring.entity.TbBook;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -18,4 +19,14 @@ public interface BookMapper extends BaseMapper<TbBook> {
     Integer judgeBookIsCollected(Integer bookId,Integer userId);
 
     List<TbBook> getMyCollectBooks(Integer userId);
+
+    List<Tag> getTagList();
+
+    List<TbBook> getBookListByTag(Integer tagId, Integer start, Integer pageSize);
+
+    List<TbBook> getBookRankingList(Integer start, Integer pageSize);
+
+    Integer getBookCollectedNumber(Integer bookId);
+
+    Integer getBookNum(Integer bookId);
 }

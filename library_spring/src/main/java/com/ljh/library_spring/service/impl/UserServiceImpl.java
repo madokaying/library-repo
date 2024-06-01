@@ -3,10 +3,7 @@ package com.ljh.library_spring.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.ljh.library_spring.entity.*;
-import com.ljh.library_spring.mapper.BookMapper;
-import com.ljh.library_spring.mapper.CommentMapper;
-import com.ljh.library_spring.mapper.PostMapper;
-import com.ljh.library_spring.mapper.UserMapper;
+import com.ljh.library_spring.mapper.*;
 import com.ljh.library_spring.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,6 +21,12 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
     @Resource
     private UserMapper userMapper;
+
+    @Resource
+    private BookMapper bookMapper;
+
+    @Resource
+    private TbBorrowMapper tbBorrowMapper;
 
     @Value("${upload.path}")
     private String imgURL;
@@ -181,7 +184,22 @@ public class UserServiceImpl implements UserService {
 
     //TODO 通过用户id获取到用户四项基本数据的数量（评论/已购的书/帖子/收藏）
     public Result getCommonData(Integer UID) {
+        //获取用户评论数
         return null;
+    }
+
+    public Result borrowBook(Integer bookId, Integer userId) {
+        //先判断还有没有书
+        if (bookMapper.getBookNum(bookId) == 0){
+            return new Result(401,"该书暂无库存，请过段时日后申请");
+        } else {
+            //借书表新增数据
+            TbBorrow borrow = new TbBorrow();
+            borrow.setBookId(bookId);
+            borrow.setUserId(userId);
+            tbBorrowMapper.insert(borrow);
+            return new Result(200,"借书成功");
+        }
     }
 
 }

@@ -67,4 +67,30 @@ public class BookController {
     public Result getMyCollectBooks(Integer userId){
         return bookService.getMyCollectBooks(userId);
     }
+
+    @PostMapping("/getBookCollectedNumber")
+    public Result getBookCollectedNumber(Integer bookId){
+        return bookService.getBookCollectedNumber(bookId);
+    }
+
+    @PostMapping("/getTagList")
+    public Result getTagList(){
+        return bookService.getTagList();
+    }
+
+    @PostMapping("/getBookListByTag")
+    public Result getBookListByTag(Integer tagId,Integer currentPage,Integer pageSize){
+        return bookService.getBookListByTag(tagId,currentPage,pageSize);
+    }
+
+    @PostMapping("/getBookRankingList")
+    public Result getBookRankingList(Integer currentPage,Integer pageSize){
+        return bookService.getBookRankingList(currentPage, pageSize);
+    }
+
+    //获取搜索表搜索次数前n的内容并返回给前端
+    @PostMapping("/getSearchContent")
+    public Result getSearchContent(@RequestParam(defaultValue = "0")Integer num){
+        return bookService.getSearchContent(num);
+    }
 }

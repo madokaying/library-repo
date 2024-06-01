@@ -2,11 +2,11 @@ package com.ljh.library_spring.service.impl;
 
 import ch.qos.logback.classic.Logger;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.ljh.library_spring.entity.ChaptersOfBook;
-import com.ljh.library_spring.entity.TbBook;
-import com.ljh.library_spring.entity.Result;
+import com.ljh.library_spring.entity.*;
 import com.ljh.library_spring.mapper.BookMapper;
+import com.ljh.library_spring.mapper.TbSearchMapper;
 import com.ljh.library_spring.service.BookService;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.TOCReference;
@@ -30,6 +30,8 @@ public class BookServiceImpl implements BookService {
     private String bookPath;
     @Autowired
     private BookMapper bookMapper;
+    @Autowired
+    private TbSearchMapper tbSearchMapper;
 
     public Page getBooksList(String bookName, Integer currentPage, Integer pageSize) {
 /*        使用mybatis-plus的分页插件，内含records（分页查询返回的列表）,"total": 总记录数,
@@ -41,6 +43,24 @@ public class BookServiceImpl implements BookService {
             LambdaQueryWrapper<TbBook> lambdaQueryWrapper = new LambdaQueryWrapper<>();
             lambdaQueryWrapper.like(TbBook::getBookName, bookName);
             bookMapper.selectPage(page, lambdaQueryWrapper);
+            /*
+            *新增功能，若搜索不为空，即认为是有用户搜索查询，则此处判断搜索内容是否已经在搜索表内存在，存在则对应内容搜索次数+1
+            * 若不存在，则添加一条记录，并设置搜索次数为1
+            * */
+            LambdaQueryWrapper<TbSearch> lambdaQueryWrapperTbSearch = new LambdaQueryWrapper<>();
+            lambdaQueryWrapperTbSearch.eq(TbSearch::getSearchContent,bookName);
+            if (tbSearchMapper.selectOne(lambdaQueryWrapperTbSearch) != null){
+                TbSearch tbSearch = tbSearchMapper.selectOne(lambdaQueryWrapperTbSearch);
+                LambdaUpdateWrapper<TbSearch> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+                lambdaUpdateWrapper.eq(TbSearch::getSearchId,tbSearch.getSearchId())
+                        .set(TbSearch::getSearchTimes,tbSearch.getSearchTimes()+1);
+                tbSearchMapper.update(lambdaUpdateWrapper);
+            }
+            else {
+                TbSearch tbSearch = new TbSearch();
+                tbSearch.setSearchContent(bookName);
+                tbSearchMapper.insert(tbSearch);
+            }
         }
         return page;
     }
@@ -144,5 +164,40 @@ public class BookServiceImpl implements BookService {
         return new Result<>(200,"获取我的收藏成功",myCollectBooks);
     }
 
+    public Result getTagList() {
+        List<Tag> tagList = bookMapper.getTagList();
+        if (tagList != null){
+            return new Result<>(200,"获取标签列表成功",tagList);
+        }
+        return new Result(400,"获取标签列表失败，请联系管理员");
+    }
 
+    public Result getBookListByTag(Integer tagId, Integer currentPage, Integer pageSize) {
+        if (tagId != null){
+            Integer start = (currentPage - 1) * pageSize;
+            List<TbBook> list = bookMapper.getBookListByTag(tagId,start,pageSize);
+            return new Result(200,"获取标签下的图书成功",list);
+        }
+        return new Result(400,"获取标签下的图书失败，请联系管理员");
+    }
+
+    public Result getBookRankingList(Integer currentPage, Integer pageSize) {
+        Integer start = (currentPage - 1) * pageSize;
+        List<TbBook> list = bookMapper.getBookRankingList(start, pageSize);
+        return new Result(200,"获取图书排行榜成功",list);
+    }
+
+    public Result getSearchContent(Integer num) {
+        //如果num为0，则返回搜索表所有的内容
+        //获取TbSearch内数据的总数
+        List<TbSearch> searchList = tbSearchMapper.selectList(null);
+        if (num > searchList.size()) {
+            num = searchList.size();
+        }
+        return new Result(200,"获取搜索内容成功",tbSearchMapper.getSearchContent(num));
+    }
+
+    public Result getBookCollectedNumber(Integer bookId) {
+        return new Result(200,"获取图书收藏人数成功",bookMapper.getBookCollectedNumber(bookId));
+    }
 }
