@@ -26,6 +26,9 @@ public class UserServiceImpl implements UserService {
     private BookMapper bookMapper;
 
     @Resource
+    private CommentMapper commentMapper;
+
+    @Resource
     private TbBorrowMapper tbBorrowMapper;
 
     @Value("${upload.path}")
@@ -182,10 +185,25 @@ public class UserServiceImpl implements UserService {
         return new Result(401,"数据修改失败，请联系管理员解决");
     }
 
-    //TODO 通过用户id获取到用户四项基本数据的数量（评论/已购的书/帖子/收藏）
+    //通过用户id获取到用户四项基本数据的数量（评论/已借的书/帖子/收藏）
     public Result getCommonData(Integer UID) {
         //获取用户评论数
-        return null;
+        LambdaQueryWrapper<Comment> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(Comment::getUserId,UID)
+                .eq(Comment::getDeleteFlag,0);
+        Integer myCommentCount = commentMapper.selectList(lambdaQueryWrapper).size();
+        //获取我的借阅数
+        LambdaQueryWrapper<TbBorrow> lambdaQueryWrapper1 = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper1.eq(TbBorrow::getUserId,UID)
+                .eq(TbBorrow::getState,1)
+                .eq(TbBorrow::getDeleteFlag,0);
+        Integer myBorrowCount = tbBorrowMapper.selectList(lambdaQueryWrapper1).size();
+        //获取我的帖子数，目前先置为0
+        //获取我的收藏数
+        LambdaQueryWrapper<TbBook> lambdaQueryWrapper2 = new LambdaQueryWrapper<>();
+        Integer myCollectionCount = bookMapper.getMyCollectBooks(UID).size();
+        CommonData commonData = new CommonData(myCommentCount,myBorrowCount,0,myCollectionCount);
+        return new Result(200,"获取四项基础数值成功",commonData);
     }
 
     public Result borrowBook(Integer bookId, Integer userId) {
@@ -200,6 +218,37 @@ public class UserServiceImpl implements UserService {
             tbBorrowMapper.insert(borrow);
             return new Result(200,"借书成功");
         }
+    }
+
+    @Override
+    public Result judgeIsBorrowed(Integer bookId, Integer userId) {
+        LambdaQueryWrapper<TbBorrow> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        //0和1都属于不可再借的状态,2和3则可以借
+        lambdaQueryWrapper.eq(TbBorrow::getBookId,bookId)
+                .eq(TbBorrow::getUserId,userId);
+        TbBorrow tbBorrow = tbBorrowMapper.selectOne(lambdaQueryWrapper);
+        if (tbBorrow == null){
+            return new Result(200,"该用户没有申请过该书，可以申请");
+        } else {
+            switch (tbBorrow.getState()){
+                case 0:
+                    return new Result(401,"该用户已申请过该书,且该请求仍在审核中，审核结束前不可再次申请");
+                case 1:
+                    return new Result(402,"该用户已借到该书，且仍未归还，不可再次申请");
+                case 2:
+                    return new Result(200,"该用户已申请过该书，但被拒绝，仍可继续申请");
+                case 3:
+                    return new Result(201,"该用户已申请过该书，且已归还，可以再次申请");
+                default:
+                    return new Result(403,"该用户申请过该书，但状态未知，不可申请");
+            }
+        }
+    }
+
+    @Override
+    public Result getMyBorrowList(Integer userId) {
+        List<TbBook> list = bookMapper.getMyBorrowList(userId);
+        return new Result(200,"获取成功",list);
     }
 
 }

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ljh.library_spring.mapper.BookMapper">
+    <insert id="collectBook">
+        INSERT INTO tb_collection(book_id,user_id)
+        VALUES(#{bookId},#{userId})
+    </insert>
+    <update id="updateBookIdentifier">
+        UPDATE tb_book_identifier
+        SET book_state = #{i}
+        WHERE tb_book_id = #{bookId}
+        AND tb_identifier = #{bookIdentifier}
+    </update>
+
+    <delete id="cancelCollectBook">
+        DELETE FROM tb_collection
+        WHERE book_id = #{bookId} AND user_id = #{userId}
+    </delete>
+
+    <select id="getTagsOfBookById" resultType="java.lang.String" parameterType="java.lang.Integer">
+        SELECT
+            DISTINCT t.tag_name
+        FROM
+            book_tag bt
+                LEFT JOIN tag t ON bt.tag_id = t.tag_id
+        WHERE
+            bt.book_id = #{bookId}
+    </select>
+    <select id="judgeBookIsCollected" resultType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+        FROM
+            tb_collection
+        WHERE
+            book_id = #{bookId} AND user_id = #{userId}
+    </select>
+    <select id="getMyCollectBooks" resultType="com.ljh.library_spring.entity.TbBook"
+            parameterType="java.lang.Integer">
+        SELECT
+            b.book_id,
+            b.book_name,
+            b.book_summary,
+            b.book_cover,
+            b.borrowed_times,
+            b.book_author,
+            b.publisher,
+            b.physical_book_price,
+            b.version,
+            b.create_time,
+            b.update_time,
+            b.deleted
+        FROM
+            tb_book b
+                LEFT JOIN tb_collection c ON c.book_id = b.book_id
+        where b.deleted = 0
+          and c.user_id = #{userId}
+    </select>
+    <select id="getTagList" resultType="com.ljh.library_spring.entity.Tag">
+        SELECT
+            tag_id,
+            tag_name
+        FROM
+            tag
+    </select>
+    <select id="getBookListByTag" resultType="com.ljh.library_spring.entity.TbBook">
+        SELECT
+            b.book_id,
+            b.book_name,
+            b.book_summary,
+            b.book_cover,
+            b.borrowed_times,
+            b.book_author,
+            b.publisher,
+            b.physical_book_price,
+            b.version,
+            b.create_time,
+            b.update_time,
+            b.deleted
+        FROM
+            tb_book b
+                LEFT JOIN book_tag bt ON b.book_id =bt.book_id
+        where bt.tag_id = #{tagId}
+        and b.deleted = 0
+        limit #{start},#{pageSize}
+    </select>
+    <select id="getBookRankingList" resultType="com.ljh.library_spring.entity.TbBook">
+        SELECT
+            b.book_id,
+            b.book_name,
+            b.book_summary,
+            b.book_cover,
+            b.borrowed_times,
+            b.book_author,
+            b.publisher,
+            b.physical_book_price,
+            b.version,
+            b.create_time,
+            b.update_time,
+            b.deleted
+        FROM
+            tb_book b
+                LEFT JOIN tb_collection tc ON b.book_id = tc.book_id
+        WHERE b.deleted = 0
+        GROUP BY
+            b.book_id
+        ORDER BY COUNT(DISTINCT tc.book_id) DESC
+        LIMIT #{start},#{pageSize}
+    </select>
+    <select id="getBookCollectedNumber" resultType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+        FROM
+            tb_collection
+        WHERE
+            book_id = #{bookId}
+    </select>
+    <select id="getBookNum" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+        FROM
+            tb_book_identifier
+        WHERE
+            tb_book_id = #{bookId}
+        and delete_flag = 0
+        and book_state = 0
+    </select>
+    <select id="getIdentifierOfBook" resultType="java.lang.Integer">
+        SELECT
+            tb_identifier
+        FROM
+            tb_book_identifier
+        WHERE
+            tb_book_id = #{bookId}
+        and delete_flag = 0
+        and book_state = 0
+    </select>
+    <select id="getMyBorrowList" resultType="com.ljh.library_spring.entity.TbBook">
+        SELECT
+            b.book_id,
+            b.book_name,
+            b.book_summary,
+            b.book_cover,
+            b.borrowed_times,
+            b.book_author,
+            b.publisher,
+            b.physical_book_price,
+            b.version,
+            b.create_time,
+            b.update_time,
+            b.deleted
+        FROM
+            tb_book b
+                LEFT JOIN tb_borrow tb ON b.book_id =tb.book_id
+        WHERE tb.user_id = #{userId}
+        AND tb.delete_flag = 0
+        AND b.deleted = 0
+        AND tb.state = 1
+    </select>
+</mapper>

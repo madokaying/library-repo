@@ -70,4 +70,6 @@ public interface BookService {
     Result getSearchContent(Integer num);
 
     Result getBookCollectedNumber(Integer bookId);
+
+    Result withdraw(Integer bookId);
 }

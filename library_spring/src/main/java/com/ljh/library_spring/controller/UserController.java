@@ -71,9 +71,15 @@ public class UserController{
         return userService.borrowBook(bookId,userId);
     }
 
+    //判断是否已经发过借书申请但还没过审或者已经借了该书但还没归还书籍
+    @PostMapping("/judgeIsBorrowed")
+    public Result judgeIsBorrowed(Integer bookId,Integer userId){
+        return userService.judgeIsBorrowed(bookId,userId);
+    }
+
     //获取自身的申请表
-//    @PostMapping("/getMyBorrowList")
-//    public Result getMyBorrowList(Integer currentPage,Integer pageSize){
-//        return userService.getMyBorrowList(currentPage,pageSize);
-//    }
+    @PostMapping("/getMyBorrowList")
+    public Result getMyBorrowList(Integer userId){
+        return userService.getMyBorrowList(userId);
+    }
 }

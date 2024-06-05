@@ -93,4 +93,15 @@ public class BookController {
     public Result getSearchContent(@RequestParam(defaultValue = "0")Integer num){
         return bookService.getSearchContent(num);
     }
+
+    //管理员下架书籍
+    //@PreAuthorize("@ex.hasAuthority('system:book:delete')")
+    @PreAuthorize("hasAnyAuthority('admin')")
+    @DeleteMapping("/withdraw")
+    public Result withdraw(Integer bookId){
+        return bookService.withdraw(bookId);
+    }
+
+    //管理员修改书籍信息
+
 }

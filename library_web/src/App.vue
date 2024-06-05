@@ -31,7 +31,7 @@ body {
   margin: 0;
 }
 
-.el-button,.el-input .el-input__inner,.el-input .el-input__placeholder {
+.el-button,.el-input .el-input__inner,.el-input .el-input__placeholder ,.el-textarea__inner{
   font-family: "MaoKenWangXingYuan",serif;
   font-size: 16px;
 }

@@ -52,6 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/book/getSearchContent").permitAll()
                 .antMatchers("/book/getBookListByTag").permitAll()
                 .antMatchers("/book/getBookRankingList").permitAll()
+                .antMatchers("/user/judgeUsernameExisted").permitAll()
                 .antMatchers("/book/getTagList").permitAll()
                 .antMatchers("/user/register").permitAll()
                 .antMatchers("/static/**").permitAll()

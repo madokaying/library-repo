@@ -1,5 +1,6 @@
 package com.ljh.library_spring.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.ljh.library_spring.entity.LoginUser;
 import com.ljh.library_spring.entity.Result;
 import com.ljh.library_spring.entity.User;
@@ -64,5 +65,15 @@ public class LoginServiceImpl implements LoginService {
         //通过userId删除redis内用户的信息(值)
         redisCache.deleteObject("login:"+userid);
         return new Result(200,"退出成功");
+    }
+
+    public Result judgeUsernameExisted(String username) {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUsername,username);
+        if (userMapper.selectOne(queryWrapper) == null){
+            return new Result(200,"用户名可用");
+        } else {
+            return new Result(400,"用户名已存在");
+        }
     }
 }

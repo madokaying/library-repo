@@ -30,4 +30,10 @@ public class LoginController {
     public Result testToken() {
         return new Result(200, "token合法");
     }
+
+    //注册时判断用户名是否已经存在
+    @PostMapping("/judgeUsernameExisted")
+    public Result judgeUsernameExisted(String username) {
+        return loginService.judgeUsernameExisted(username);
+    }
 }

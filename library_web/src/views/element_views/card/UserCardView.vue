@@ -85,14 +85,25 @@ export default {
       } else if (value.length < 9 || value.length > 15) {
         return callback(new Error('用户名长度应处于9~15之间'));
       } else {
-        callback();
+        http.post(`/user/judgeUsernameExisted?username=${this.registerForm.username}`).then(res => {
+          if (res.data.code !== 200) {
+            return callback(new Error('用户名已存在'));
+          } else {
+            callback();
+          }
+        })
       }
     };
     const validatePassword = (rule, value, callback) => {
+      // 定义一个正则表达式，用于匹配不被允许的字符
+      const illegalCharsPattern = /[\s'/\\:;|<>[\]{}()]+/;
       if (value === '') {
         return callback(new Error('请输入密码'));
       } else if (value.length < 9 || value.length > 15) {
         return callback(new Error('密码长度应处于9~15之间'));
+      } else if (illegalCharsPattern.test(value)) {
+        // 如果密码中包含非法字符，则返回错误信息
+        return callback(new Error('密码中包含不允许的字符'));
       } else {
         callback();
       }

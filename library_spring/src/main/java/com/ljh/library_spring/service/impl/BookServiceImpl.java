@@ -200,4 +200,12 @@ public class BookServiceImpl implements BookService {
     public Result getBookCollectedNumber(Integer bookId) {
         return new Result(200,"获取图书收藏人数成功",bookMapper.getBookCollectedNumber(bookId));
     }
+
+    @Override
+    public Result withdraw(Integer bookId) {
+        if (bookMapper.deleteById(bookId) == 1){
+            return new Result(200,"删除图书成功");
+        }
+        return new Result<>(501,"删除图书失败，请联系管理员");
+    }
 }

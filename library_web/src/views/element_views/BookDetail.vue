@@ -66,7 +66,7 @@
             </p>
             <p style="text-align: left;margin-left: 22px">
               标签:
-              <span v-for="(tag,index) in tags" :key="index" style="border-radius: 10px;border: #49b1f5 solid 1px;color: #49b1f5;margin-right: 10px;padding: 0 10px">{{ tag }}</span>
+              <span v-for="(tag,index) in tags" :key="index" style="border-radius: 10px;border: #49b1f5 solid 1px;color: #49b1f5;margin-right: 10px;padding: 0 10px;cursor: pointer">{{ tag }}</span>
             </p>
             <div>
               <!--操作按钮区域-->
@@ -151,7 +151,7 @@ export default {
       },/*目录部分是否显示加载界面*/
       isReadingMode: false,/*是否处于阅读模式*/
       chapterContent: null,/*章节内容*/
-      maxRetryTime: 3,/*重试次数*/
+      maxRetryTime: 1,/*重试次数*/
       retryTime: 0,/*重试次数*/
       readingRecord: JSON.parse(localStorage.getItem(JSON.stringify(this.bookId))),/*阅读记录*/
       starIcon: 'el-icon-star-off',/*收藏图标*/
@@ -336,13 +336,6 @@ export default {
         this.goChapter(this.tableOfContents[currentIndex + 1]);
       }
     },
-    //初次进入该组件时，由于存在异步问题，需要等待一段时间才能正确读取到获取阅读记录，因此使用reload刷新一次确保数据能够正常获取，若刷新一次后record仍为null，则判断当前用户尚未阅读过该书
-    getReadingRecord() {
-      const record = JSON.parse(localStorage.getItem(JSON.stringify(this.bookId)));
-      if (record === null){
-        location.reload();
-      }
-    },
     getBookDetailById(){
       http.post(`book/getBookDetailById?bookId=${this.bookId}`).then(res => {
         if (res.data.code === 200) {
@@ -467,16 +460,38 @@ export default {
         });
       }else {
         const UID = JSON.parse(localStorage.getItem('userInfo')).UID;
-        http.post(`user/borrowBook?bookId=${this.bookId}&userId=${UID}`).then(res => {
-          if (res.data.code === 200){
+        http.post(`/user/judgeIsBorrowed?bookId=${this.bookId}&userId=${UID}`).then(res => {
+          if(res.data.code === 200 || res.data.code === 201){
+            http.post(`user/borrowBook?bookId=${this.bookId}&userId=${UID}`).then(res => {
+              if (res.data.code === 200){
+                this.$message({
+                  message:'申请成功，请去我的书库确认申请进度',
+                  type: 'success',
+                  duration: '2000',
+                })
+              } else {
+                this.$message({
+                  message: res.data.msg,
+                  type: 'error',
+                  duration: '2000',
+                })
+              }
+            })
+          } else if (res.data.code === 401){
             this.$message({
-              message:'申请成功，请去我的书库确认申请进度',
-              type: 'success',
+              message: '您已经申请过该书且请求仍在审核，请勿重复申请',
+              type: 'error',
+              duration: '2000',
+            })
+          } else if (res.data.code === 402) {
+            this.$message({
+              message: '您已经借过该书，请先还书后申请',
+              type: 'error',
               duration: '2000',
             })
           } else {
             this.$message({
-              message: res.data.msg,
+              message: '未知状况，请联系管理员解决',
               type: 'error',
               duration: '2000',
             })
@@ -492,13 +507,25 @@ export default {
       });
     }
   },
+  onMounted() {
+    const record = localStorage.getItem(JSON.stringify(this.bookId));
+    if (record){
+      try {
+        this.readingRecord = JSON.parse(record);
+      } catch (error) {
+        console.error('Error parsing data:', error);
+        this.readingRecord = null;
+      }
+    } else {
+      console.info('No data found in localStorage');
+      this.readingRecord = null;
+    }
+  },
   mounted() {
     //获取该书收藏人数
     this.getCollectTimes();
     //判断书籍是否已被该用户收藏
     this.judgeIsStar();
-    //从本地读取阅读记录
-    this.getReadingRecord();
     /*访问后端数据库获取书籍的基本信息*/
     this.getBookDetailById();
     /*通过书籍id获取书籍的章节目录*/

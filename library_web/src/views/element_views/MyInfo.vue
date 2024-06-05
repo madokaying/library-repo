@@ -69,14 +69,14 @@
             <div style="line-height: 18px">
               <table style="width: 100%">
                 <tr style="height: 50px;font-size: 30px">
-                  <td>{{commonData.myComments}}</td>
-                  <td>{{commonData.myBooks}}</td>
-                  <td>{{ commonData.myPost }}</td>
-                  <td>{{commonData.myCollection}}</td>
+                  <td>{{commonData.myCommentCount}}</td>
+                  <td>{{commonData.myBorrowCount}}</td>
+                  <td>{{ commonData.myPostCount }}</td>
+                  <td>{{commonData.myCollectionCount}}</td>
                 </tr>
                 <tr style="height: 20px">
                   <td>评论</td>
-                  <td>已购</td>
+                  <td>借阅</td>
                   <td>帖子</td>
                   <td>收藏</td>
                 </tr>
@@ -143,7 +143,7 @@
             <div class="basic-menu">
               <el-row>
                 <el-col :span="6">
-                  <div class="basic-menu-item">
+                  <div class="basic-menu-item" @click="toManageBook">
                     <div>
                       <i class="el-icon-s-management" style="font-size: 40px"></i>
                     </div>
@@ -151,7 +151,7 @@
                   </div>
                 </el-col>
                 <el-col :span="6">
-                  <div class="basic-menu-item">
+                  <div class="basic-menu-item" @click="toManageUser">
                     <div>
                       <i class="el-icon-s-custom" style="font-size: 40px"></i>
                     </div>
@@ -159,7 +159,7 @@
                   </div>
                 </el-col>
                 <el-col :span="6">
-                  <div class="basic-menu-item">
+                  <div class="basic-menu-item" @click="toManageComment">
                     <div>
                       <i class="el-icon-s-comment" style="font-size: 40px"></i>
                     </div>
@@ -175,7 +175,7 @@
                   </div>
                 </el-col>
                 <el-col :span="6">
-                  <div class="basic-menu-item">
+                  <div class="basic-menu-item" @click="toManagePost">
                     <div>
                       <i class="el-icon-s-marketing" style="font-size: 40px"></i>
                     </div>
@@ -183,7 +183,7 @@
                   </div>
                 </el-col>
                 <el-col :span="6">
-                  <div class="basic-menu-item">
+                  <div class="basic-menu-item" @click="toDataVisualization">
                     <div>
                       <i class="el-icon-s-data" style="font-size: 40px"></i>
                     </div>
@@ -225,7 +225,7 @@
 
 <!--          管理员部分-->
           <div v-if="units === 'manageBook'">
-
+            <admin-manage-book-list></admin-manage-book-list>
           </div>
 
           <div v-if="units === 'manageUser'">
@@ -241,6 +241,9 @@
           </div>
 
           <div v-if="units === 'managePost'">
+
+          </div>
+          <div v-if="units === 'dataVisualization'">
 
           </div>
         </el-col>
@@ -293,6 +296,7 @@ import MyComments from "@/views/element_views/menu/MyComments.vue";
 import MyCollectBook from "@/views/element_views/menu/MyCollectBook.vue";
 import MyLibrary from "@/views/element_views/menu/MyLibrary.vue";
 import AdminManageBorrowList from "@/views/admin/AdminManageBorrowList.vue";
+import AdminManageBookList from "@/views/admin/AdminManageBook.vue";
 
 export default {
   name: "MyInfo",
@@ -300,6 +304,7 @@ export default {
     'units',
   ],
   components: {
+    AdminManageBookList,
     AdminManageBorrowList,
     MyLibrary,
     MyCollectBook,
@@ -332,10 +337,10 @@ export default {
         changeType: 'avatar',//设置上传的是头像还是背景,默认上传头像
       },
       commonData: {
-        myComments:0,
-        myBooks:0,
-        myPost:0,
-        myCollection:0,
+        myCommentCount:0,
+        myBorrowCount:0,
+        myPostCount:0,
+        myCollectionCount:0,
       },
       changeAvatarTips: false,
       fileType: 'jpg',
@@ -467,6 +472,32 @@ export default {
     toManageBorrow(){
       this.$router.push({name: 'myInfo', params: {units: 'manageBorrow'}});
     },
+    toManageBook(){
+      this.$router.push({name: 'myInfo', params: {units: 'manageBook'}});
+    },
+    toManageComment(){
+      this.$router.push({name: 'myInfo', params: {units: 'manageComment'}});
+    },
+    toManagePost(){
+      this.$router.push({name: 'myInfo', params: {units: 'managePost'}});
+    },
+    toManageUser(){
+      this.$router.push({name: 'myInfo', params: {units: 'manageUser'}});
+    },
+    toDataVisualization(){
+      this.$router.push({name: 'myInfo', params: {units: 'dataVisualization'}});
+    },
+    //获取自身的评论数，收藏数，帖子数，借阅数
+    getCommonData() {
+      const UID = JSON.parse(localStorage.getItem('userInfo')).UID;
+      http.post(`/user/getCommonData?UID=${UID}`).then(res => {
+        if (res.data.code === 200){
+          this.commonData = res.data.data;
+        } else {
+          this.$message.error('获取数据失败');
+        }
+      })
+    },
     isSafe(){
       //安全性判断,防止未登录输入路由跳转
       if (localStorage.getItem('userInfo') != null) {
@@ -487,17 +518,10 @@ export default {
         this.$router.push({name: 'mainBody', params: {units: 'homePage'}});
       }
     },
-    //获取CommonData
-    getCommonData() {
-      http.post(`/user/getCommonData?UID=${JSON.parse(localStorage.getItem('userInfo')).UID}`).then(res => {
-        if (res.data.code === 200){
-          this.commonData = res.data.data;
-        }
-      })
-    },
   },
   mounted() {
     this.isSafe();
+    this.getCommonData();
   }
 }
 </script>

@@ -29,4 +29,10 @@ public interface BookMapper extends BaseMapper<TbBook> {
     Integer getBookCollectedNumber(Integer bookId);
 
     Integer getBookNum(Integer bookId);
+
+    List<Integer> getIdentifierOfBook(Integer bookId);
+
+    boolean updateBookIdentifier(Integer bookId, Integer bookIdentifier, int i);
+
+    List<TbBook> getMyBorrowList(Integer userId);
 }

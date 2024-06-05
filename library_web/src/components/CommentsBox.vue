@@ -131,19 +131,19 @@ export default {
 
 <template>
   <div class="comment-wrapper" v-loading="loading">
-    <div v-if="commentList.length !== 0">
-      <div class="comment-title">
-        <b>评论区</b>
-        <span style="border-radius: 10px;background-color: #409EFF;color: white;padding: 5px 10px;font-size: 15px;margin-left: 20px">
+    <div class="comment-title">
+      <b>评论区</b>
+      <span style="border-radius: 10px;background-color: #409EFF;color: white;padding: 5px 10px;font-size: 15px;margin-left: 20px">
           共{{totalCommentList}}条评论
         </span>
-      </div>
-      <div class="add-comment">
-        <el-input :placeholder="placeholder" v-model="comment.content"  @keydown.enter.native="putComment">
-          <el-button slot="prepend" @click="reset">重置</el-button>
-          <el-button slot="append" icon="el-icon-s-promotion" @click="putComment" style="background-color: rgba(0,191,255,.2);color: black">发布</el-button>
-        </el-input>
-      </div>
+    </div>
+    <div class="add-comment">
+      <el-input :placeholder="placeholder" v-model="comment.content"  @keydown.enter.native="putComment">
+        <el-button slot="prepend" @click="reset">重置</el-button>
+        <el-button slot="append" icon="el-icon-s-promotion" @click="putComment" style="background-color: rgba(0,191,255,.2);color: black">发布</el-button>
+      </el-input>
+    </div>
+    <div v-if="commentList.length !== 0">
       <div v-for="(comment,index) in paginatedList" :key="index" class="parent-comment">
         <hr>
 <!--        一级评论区-->

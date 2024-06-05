@@ -1,13 +1,10 @@
 package com.ljh.library_spring.controller;
 
 import com.ljh.library_spring.entity.Result;
+import com.ljh.library_spring.entity.TbBorrow;
 import com.ljh.library_spring.service.AdminService;
-import com.ljh.library_spring.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin
 @RestController
@@ -16,9 +13,17 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
+    //获取借阅列表
     @PostMapping("/getBorrowList")
-    public Result getBorrowList(Integer currentPage, Integer pageSize)
+    public Result getBorrowList()
     {
-        return adminService.getBorrowList(currentPage,pageSize);
+        return adminService.getBorrowList();
+    }
+
+    //审批借阅申请
+    @PostMapping("/updateBorrow")
+    public Result updateBorrow(@RequestBody TbBorrow tbBorrow)
+    {
+        return adminService.updateBorrow(tbBorrow);
     }
 }
