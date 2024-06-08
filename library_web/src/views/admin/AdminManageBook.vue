@@ -9,17 +9,21 @@ export default {
       loading: true,
       pageSize: 9,
       currentPage:1,
+      search:'',
+      select:'',
+      selectFile:null,
       dialog:{
         updateDialog:false,
       },
       formLabelWidth: '80px',
       bookForm:{
-        bookName:null,
-        bookAuthor:null,
-        bookCover:null,
-        bookSummary:null,
-        publisher:null,
-        physicalBookPrice:null,
+        bookId:'',
+        bookName:'',
+        bookAuthor:'',
+        bookCover:'',
+        bookSummary:'',
+        publisher:'',
+        physicalBookPrice:'',
       },
     }
   },
@@ -64,39 +68,54 @@ export default {
       });
     },
     update(book){
-      // this.$refs[formName].validate((valid) => {
-      //   if (valid) {
-      //     // 提交表单逻辑，包括图片URL和其他表单项数据
-      //     console.log(this.form);
-      //     // 这里可以调用API发送数据到服务器
-      //   } else {
-      //     console.log('表单验证失败！');
-      //     return false;
-      //   }
-      // });
       this.bookForm = book;
       this.dialog.updateDialog = true;
     },
-    // 图片上传前的验证
-    beforeCoverUpload(file) {
-      const isJPG = file.type === 'image/jpeg' || file.type === 'image/png';
-      const isLt2M = file.size / 1024 / 1024 < 2;
+    handleImageChange(file) {
+      // if(file.size < 1 || file.name === ''){
+      //   this.$message.error('请上传有效文件');
+      //   return;
+      // }
+      this.selectFile = file.raw;
+      //console.log(file.type);
+      //file.type不能正确识别文件的类型(undefined)，原因暂时不明，出此下策,取.后面的后缀
+      const fileName = file.name.toLowerCase();
+      const isJPGByExtension = ['.jpg', '.jpeg'].includes(fileName.slice(fileName.lastIndexOf('.')));
 
-      if (!isJPG) {
-        this.$message.error('上传书籍封面只能是 JPG 或 PNG 格式!');
-        return false;
-      }
-      if (!isLt2M) {
-        this.$message.error('上传书籍封面大小不能超过 2MB!');
-        return false;
-      }
-      return true;
-    },
+      const isLt5M = file.size / 1024 / 1024 < 1;
 
-    // 图片上传成功的处理
-    handleCoverSuccess(response) {
-      this.bookForm.bookCover = response.data.bookCover;
+      if (!isJPGByExtension) {
+        this.$message.error('上传封面图片只能是 JPG 格式!');
+        return;
+      }
+      if (!isLt5M) {
+        this.$message.error('上传封面图片大小不能超过 5MB!');
+        return;
+      }
+      this.bookForm.bookCover = URL.createObjectURL(file.raw);
     },
+    updateRealBook(){
+
+    },
+    submitUpload(){
+      let formData = new FormData();
+      formData.append("file", this.selectFile);
+      formData.append("bookId", this.bookForm.bookId);
+      formData.append("bookName", this.bookForm.bookName);
+      formData.append("bookAuthor", this.bookForm.bookAuthor);
+      formData.append("bookSummary", this.bookForm.bookSummary);
+      formData.append("publisher", this.bookForm.publisher);
+      formData.append("physicalBookPrice", this.bookForm.physicalBookPrice);
+      http.post('/book/updateBook',formData).then(res => {
+       if (res.data.code === 200){
+         this.$message.success('更新成功');
+         this.dialog.updateDialog = false;
+         this.getBookList();
+       } else{
+         this.$message.error('更新失败');
+       }
+      })
+    }
   },
   mounted() {
     this.getBookList();
@@ -106,6 +125,20 @@ export default {
 
 <template>
   <div style="margin-right: 16px">
+    <el-input placeholder="请输入查询内容" v-model="search" class="input-with-select" style="width: 90%">
+      <el-select v-model="select" slot="prepend" placeholder="请选择" style="width: 100px">
+        <el-option label="书名" value="1"></el-option>
+        <el-option label="作者" value="2"></el-option>
+        <el-option label="编号" value="3"></el-option>
+        <el-option label="重置" value="4"></el-option>
+      </el-select>
+      <el-button slot="append" icon="el-icon-search"></el-button>
+    </el-input>
+
+    <el-button style="width: 10%" type="primary" plain>
+      添加书籍
+    </el-button>
+
     <el-table
         :data="bookList"
         :header-cell-style="{ 'text-align': 'center' }"
@@ -208,46 +241,27 @@ export default {
         </el-form-item>
         <el-form-item label="书籍封面">
           <el-upload
-              class="cover-uploader"
-              action="http://your-upload-api-url"
+              ref="upload"
+              :action="''"
+              :auto-upload="false"
+              :on-change="handleImageChange"
               :show-file-list="false"
-              :on-success="handleCoverSuccess"
-              :before-upload="beforeCoverUpload">
-            <el-image v-if="bookForm.bookCover" :src="bookForm.bookCover" class="cover"></el-image>
-            <i v-else class="el-icon-plus cover-uploader-icon"></i>
+              >
+            <el-image
+                style="width: 200px;height: 250px"
+                fit="scale-down"
+                :src="bookForm.bookCover"></el-image>
           </el-upload>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialog.updateDialog = false">取 消</el-button>
-        <el-button type="primary" @click="submitRegisterForm('updateForm')">提 交</el-button>
+        <el-button type="primary" @click="submitUpload">提 交<i class="el-icon-upload el-icon--right"></i></el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <style scoped>
-.cover-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-.cover-uploader .el-upload:hover {
-  border-color: #409EFF;
-}
-.cover-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  line-height: 178px;
-  text-align: center;
-}
-.cover {
-  width: 178px;
-  height: 210px;
-  display: block;
-}
+
 </style>

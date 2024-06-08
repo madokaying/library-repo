@@ -2,6 +2,8 @@ package com.ljh.library_spring.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ljh.library_spring.entity.Result;
+import com.ljh.library_spring.entity.TbBook;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -72,4 +74,7 @@ public interface BookService {
     Result getBookCollectedNumber(Integer bookId);
 
     Result withdraw(Integer bookId);
+
+
+    Result updateBook(MultipartFile file, Integer bookId, String bookName, String bookAuthor, String bookSummary, String publisher, Double physicalBookPrice);
 }

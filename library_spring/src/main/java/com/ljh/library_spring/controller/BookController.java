@@ -2,9 +2,11 @@ package com.ljh.library_spring.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ljh.library_spring.entity.Result;
+import com.ljh.library_spring.entity.TbBook;
 import com.ljh.library_spring.service.BookService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -103,5 +105,19 @@ public class BookController {
     }
 
     //管理员修改书籍信息
+    @PreAuthorize("hasAnyAuthority('admin')")
+    @PostMapping("/updateBook")
+    public Result updateBook(
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam("bookId") Integer bookId,
+            @RequestParam("bookName") String bookName,
+            @RequestParam("bookAuthor") String bookAuthor,
+            @RequestParam("bookSummary") String bookSummary,
+            @RequestParam("publisher") String publisher,
+            @RequestParam("physicalBookPrice") Double physicalBookPrice
+    ){
+        return bookService.updateBook(file, bookId, bookName, bookAuthor, bookSummary, publisher, physicalBookPrice);
+    }
+
 
 }

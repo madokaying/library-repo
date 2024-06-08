@@ -16,7 +16,10 @@ import nl.siegmann.epublib.domain.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -32,6 +35,23 @@ public class BookServiceImpl implements BookService {
     private BookMapper bookMapper;
     @Autowired
     private TbSearchMapper tbSearchMapper;
+
+    /**
+     * 存储图像文件的源路径。
+     * 同样通过@Value注解从应用配置中动态加载值，强调了配置管理的灵活性。
+     * 这个变量用于标识图像文件在服务器上的存储位置，便于后端代码访问和处理这些文件。
+     */
+    @Value("${upload.path}")
+    private String imgURL;
+
+    /**
+     * 存储图像文件的URL路径。
+     * 通过@Value注解从应用配置中动态加载值，确保了配置的灵活性和可维护性。
+     * 这个变量的作用是提供图像文件在服务器上的访问路径，以便在前端页面上展示这些图像。
+     */
+    @Value("${upload.src}")
+    private String imgSRC;
+
 
     public Page getBooksList(String bookName, Integer currentPage, Integer pageSize) {
 /*        使用mybatis-plus的分页插件，内含records（分页查询返回的列表）,"total": 总记录数,
@@ -207,5 +227,40 @@ public class BookServiceImpl implements BookService {
             return new Result(200,"删除图书成功");
         }
         return new Result<>(501,"删除图书失败，请联系管理员");
+    }
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Result updateBook(MultipartFile file, Integer bookId, String bookName, String bookAuthor, String bookSummary, String publisher, Double physicalBookPrice) {
+        /*
+         * 通过book的bookId获取到tbBook，进而得到cover地址，若地址存在文件则删除，然后将图片存到原cover的位置（同名）
+        * */
+        LambdaUpdateWrapper<TbBook> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(TbBook::getBookId,bookId)
+                .set(TbBook::getBookName,bookName)
+                .set(TbBook::getBookAuthor,bookAuthor)
+                .set(TbBook::getBookSummary,bookSummary)
+                .set(TbBook::getPublisher,publisher)
+                .set(TbBook::getPhysicalBookPrice,physicalBookPrice);
+        int result = bookMapper.update(wrapper);
+        if (result == 0){
+            return new Result(400,"更新图书失败");
+        } else {
+            //return new Result(200,"更新图书成功");
+            if (file != null){
+                String oldCover = bookMapper.selectById(bookId).getBookCover().replaceAll(imgSRC,imgURL);
+                File coverFile = new File(oldCover);
+                //若该路径下的是文件且存在，则删除
+                if (coverFile.isFile() && coverFile.exists()){
+                    coverFile.delete();
+                }
+                //将文件保存指定目录
+                try{
+                    file.transferTo(new File(oldCover));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            return new Result(200,"更新图书成功");
+        }
     }
 }

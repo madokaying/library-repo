@@ -24,6 +24,7 @@ export default {
   name: "HeaderMenu",
   data() {
     return {
+      activeIndex:'1',
       url: logo,
       fit: 'scale-down',
       catalogIcon:'el-icon-s-fold',

@@ -76,7 +76,7 @@
                 <span v-if="isStarred">已收藏</span>
                 <span v-else>收藏</span>
               </el-button>
-              <el-button v-if="readingRecord !== null" @click="goChapter(readingRecord)" type="primary" plain>继续阅读</el-button>
+              <el-button v-show="readingRecord !== null" @click="goChapter(readingRecord)" type="primary" plain>继续阅读</el-button>
             </div>
           </div>
         </div>
@@ -133,7 +133,7 @@ export default {
     CommentsBox,
   },
   props: {
-    bookId: Object,
+    bookId: null,
   },
   data() {
     return {
@@ -153,7 +153,7 @@ export default {
       chapterContent: null,/*章节内容*/
       maxRetryTime: 1,/*重试次数*/
       retryTime: 0,/*重试次数*/
-      readingRecord: JSON.parse(localStorage.getItem(JSON.stringify(this.bookId))),/*阅读记录*/
+      readingRecord: '',/*阅读记录*/
       starIcon: 'el-icon-star-off',/*收藏图标*/
       isStarred: false,/*是否收藏*/
     }
@@ -505,20 +505,22 @@ export default {
         type: 'error',
         duration: '2000',
       });
-    }
-  },
-  onMounted() {
-    const record = localStorage.getItem(JSON.stringify(this.bookId));
-    if (record){
-      try {
-        this.readingRecord = JSON.parse(record);
-      } catch (error) {
-        console.error('Error parsing data:', error);
-        this.readingRecord = null;
+    },
+    setReadingRecord(){
+      if (this.bookId) {
+        const record = localStorage.getItem(JSON.stringify(this.bookId));
+        if (record) {
+          try {
+            this.readingRecord = JSON.parse(record);
+          } catch (error) {
+            console.error('Error parsing data:', error);
+            this.readingRecord = null;
+          }
+        } else {
+          console.info('No data found in localStorage');
+          this.readingRecord = null;
+        }
       }
-    } else {
-      console.info('No data found in localStorage');
-      this.readingRecord = null;
     }
   },
   mounted() {
@@ -532,6 +534,8 @@ export default {
     this.getTableOfContentsById();
     /*通过书籍id获取书籍标签信息*/
     this.getTagsOfBook();
+    /*从本地获取该书的阅读记录*/
+    this.setReadingRecord();
     /*为滚动条添加监听器,使用节流处理，300ms触发一次，提升性能*/
     this.selectedItemByScroll = _.throttle(this.selectedItemByScroll, 300);
     window.addEventListener('scroll', this.selectedItemByScroll);

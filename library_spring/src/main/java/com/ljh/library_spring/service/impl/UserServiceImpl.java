@@ -92,10 +92,10 @@ public class UserServiceImpl implements UserService {
             return new Result(401,"文件不能为空");
         }
         // 生成唯一标识符作为文件名
-        String uniqueFileName = UUID.randomUUID().toString() + "." + fileType;
+        String uniqueFileName = UUID.randomUUID() + "." + fileType;
         try {
             //将文件保存指定目录
-            file.transferTo(new File(imgURL + uniqueFileName));
+            file.transferTo(new File(imgURL + "img/" + uniqueFileName));
             //将当前用户的头像删除再存入新头像地址
             LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
             lambdaQueryWrapper.eq(User::getId,UID);
@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService {
                 //将取得的访问地址替换成本地地址
                 String deleteAvatarPath = oldAvatarPath.replaceAll(imgSRC,imgURL);
                 //如果头像是系统默认头像，则不执行删除
-                String defaultAvatar = imgURL + "defaultAvatar.jpg";
+                String defaultAvatar = imgURL + "img/" + "defaultAvatar.jpg";
                 if (!defaultAvatar.equals(deleteAvatarPath)){
                     File avatarFile = new File(deleteAvatarPath);
                     //若该路径下的是文件且存在，则删除
@@ -115,7 +115,7 @@ public class UserServiceImpl implements UserService {
                     }
                 }
                 //前端访问的图片路径
-                String src = imgSRC + uniqueFileName;
+                String src = imgSRC + "img/" + uniqueFileName;
                 LambdaUpdateWrapper<User> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
                 lambdaUpdateWrapper.set(User::getAvatar,src)
                         .eq(User::getId,UID);
@@ -126,7 +126,7 @@ public class UserServiceImpl implements UserService {
                 //将取得的访问地址替换成本地地址
                 String deleteBackgroundPath = oldBackgroundPath.replaceAll(imgSRC,imgURL);
                 //如果是系统默认背景则不删除
-                String defaultBackground = imgURL + "defaultBackground.jpg";
+                String defaultBackground = imgURL + "img/" + "defaultBackground.jpg";
                 if (!defaultBackground.equals(deleteBackgroundPath)){
                     File backgroundFile = new File(deleteBackgroundPath);
                     //若该路径下的是文件且存在，则删除
@@ -135,7 +135,7 @@ public class UserServiceImpl implements UserService {
                     }
                 }
                 //前端访问的图片路径
-                String src = imgSRC + uniqueFileName;
+                String src = imgSRC + "img/" + uniqueFileName;
                 LambdaUpdateWrapper<User> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
                 lambdaUpdateWrapper.set(User::getBackground,src)
                         .eq(User::getId,UID);
