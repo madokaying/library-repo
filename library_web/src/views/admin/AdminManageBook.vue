@@ -1,5 +1,6 @@
 <script>
 import http from '@/utils/http'
+
 export default {
   name: "AdminManageBookList",
   data() {
@@ -10,10 +11,11 @@ export default {
       pageSize: 9,
       currentPage:1,
       search:'',
-      select:'',
+      select:'1',
       selectFile:null,
       dialog:{
         updateDialog:false,
+        addDialog:false
       },
       formLabelWidth: '80px',
       bookForm:{
@@ -28,10 +30,33 @@ export default {
     }
   },
   methods:{
+    searchBook(){
+      if (this.select === '1'){
+        this.getBookList();
+      } else if(this.select === '2'){
+        http.post(`/book/getBooksByAuthor?author=${this.search}&currentPage=${this.currentPage}&pageSize=${this.pageSize}`).then(res => {
+          if(res.data.code === 200){
+            this.bookList = res.data.data.records;
+            this.total = res.data.data.total;
+          } else {
+            this.$message.error('获取书籍列表失败');
+          }
+        })
+      } else {
+        http.post(`/book/getBooksByBookId?bookId=${this.search}&currentPage=${this.currentPage}&pageSize=${this.pageSize}`).then(res => {
+          if(res.data.code === 200){
+            this.bookList = res.data.data.records;
+            this.total = res.data.data.total;
+          } else {
+            this.$message.error('获取书籍列表失败');
+          }
+        })
+      }
+    },
     //获取书籍列表
     getBookList(){
       this.loading = true;
-      http.get(`/book/getBooksList?currentPage=${this.currentPage}&pageSize=${this.pageSize}`).then(res => {
+      http.get(`/book/getBooksList?bookName=${this.search}&currentPage=${this.currentPage}&pageSize=${this.pageSize}`).then(res => {
         if(res.data.code === 200){
           this.bookList = res.data.data.records;
           this.total = res.data.data.total;
@@ -115,7 +140,37 @@ export default {
          this.$message.error('更新失败');
        }
       })
-    }
+    },
+    addBook(){
+      this.bookForm = {
+        bookId: '',
+        bookName: '',
+        bookAuthor: '',
+        bookCover: '',
+        bookSummary: '',
+        publisher: '',
+        physicalBookPrice: '',
+      };
+      this.dialog.addDialog = true;
+    },
+    submitAddBook(){
+      let formData = new FormData();
+      formData.append("file", this.selectFile);
+      formData.append("bookName", this.bookForm.bookName);
+      formData.append("bookAuthor", this.bookForm.bookAuthor);
+      formData.append("bookSummary", this.bookForm.bookSummary);
+      formData.append("publisher", this.bookForm.publisher);
+      formData.append("physicalBookPrice", this.bookForm.physicalBookPrice);
+      http.post('/book/addBook',formData).then(res => {
+        if (res.data.code === 200){
+          this.$message.success('添加成功');
+          this.dialog.addDialog = false;
+          this.getBookList();
+        } else{
+          this.$message.error('更新失败');
+        }
+      })
+    },
   },
   mounted() {
     this.getBookList();
@@ -130,12 +185,11 @@ export default {
         <el-option label="书名" value="1"></el-option>
         <el-option label="作者" value="2"></el-option>
         <el-option label="编号" value="3"></el-option>
-        <el-option label="重置" value="4"></el-option>
       </el-select>
-      <el-button slot="append" icon="el-icon-search"></el-button>
+      <el-button slot="append" icon="el-icon-search" @click="searchBook"></el-button>
     </el-input>
 
-    <el-button style="width: 10%" type="primary" plain>
+    <el-button style="width: 10%" type="primary" plain @click="addBook">
       添加书籍
     </el-button>
 
@@ -191,12 +245,13 @@ export default {
               size="medium">
             修改
           </el-button>
-          <el-button
+<!--          不想写了，修改书籍什么的暂时不写了，直接修改数据库吧
+            <el-button
               @click="updateRealBook"
               type="text"
               size="medium">
             修改实际书籍
-          </el-button>
+          </el-button>-->
         </template>
       </el-table-column>
     </el-table>
@@ -257,6 +312,57 @@ export default {
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialog.updateDialog = false">取 消</el-button>
         <el-button type="primary" @click="submitUpload">提 交<i class="el-icon-upload el-icon--right"></i></el-button>
+      </div>
+    </el-dialog>
+
+    <!--    添加书籍的弹窗-->
+    <el-dialog
+        custom-class="cardDialog"
+        :lock-scroll="false"
+        title="书籍添加窗口"
+        :visible.sync="dialog.addDialog">
+      <el-form :model="bookForm" status-icon ref="bookForm">
+        <el-form-item label="书名" :label-width="formLabelWidth" prop="bookName" required>
+          <el-input v-model="bookForm.bookName" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="作者" :label-width="formLabelWidth" prop="bookAuthor" required>
+          <el-input v-model="bookForm.bookAuthor" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="简介" :label-width="formLabelWidth" prop="bookSummary" required>
+          <el-input
+              v-model="bookForm.bookSummary"
+              type="textarea"
+              :rows="2"
+              placeholder="请输入内容"
+              autocomplete="off">
+          </el-input>
+        </el-form-item>
+        <el-form-item label="出版社" :label-width="formLabelWidth" prop="publisher" required>
+          <el-input v-model="bookForm.publisher" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="价格" :label-width="formLabelWidth" prop="physicalBookPrice" required>
+          <el-input v-model="bookForm.physicalBookPrice" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="书籍封面" required>
+          <el-upload
+              ref="add"
+              :action="''"
+              :auto-upload="false"
+              :on-change="handleImageChange"
+              :show-file-list="false"
+          >
+            <el-image
+                style="width: 200px;height: 250px"
+                fit="scale-down"
+                v-if="bookForm.bookCover"
+                :src="bookForm.bookCover"></el-image>
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialog.addDialog = false">取 消</el-button>
+        <el-button type="primary" @click="submitAddBook">提 交<i class="el-icon-upload el-icon--right"></i></el-button>
       </div>
     </el-dialog>
   </div>

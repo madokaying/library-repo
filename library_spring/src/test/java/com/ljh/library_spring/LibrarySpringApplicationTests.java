@@ -22,6 +22,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.io.*;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -330,5 +332,15 @@ class LibrarySpringApplicationTests {
             }
             return childrenCommentList;
         }
+    }
+
+    @Test
+    public void testTime(){
+        LocalDateTime now = LocalDateTime.now();
+        System.out.println(now);
+        LocalDateTime localDateTime = now.plusDays(1);
+        System.out.println(localDateTime);
+        long daysBetween = ChronoUnit.DAYS.between(now, localDateTime);
+        System.out.println(daysBetween);
     }
 }

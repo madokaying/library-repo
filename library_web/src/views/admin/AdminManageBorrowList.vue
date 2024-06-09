@@ -182,21 +182,32 @@ export default {
         <el-button
             @click="pass(scope.row.tbBorrow)"
             type="text"
+            v-if="scope.row.tbBorrow.state === 0"
             size="medium">
           通过
         </el-button>
         <el-button
             @click="reject(scope.row.tbBorrow)"
             type="text"
+            v-if="scope.row.tbBorrow.state === 0"
             size="medium">
           拒绝
         </el-button>
         <el-button
             @click="isReturnBook(scope.row.tbBorrow)"
             type="text"
+            v-if="scope.row.tbBorrow.state === 1"
             size="medium">
           确认归还
         </el-button>
+        <el-tag
+            v-if="scope.row.tbBorrow.state === 2">
+          已拒绝申请
+        </el-tag>
+        <el-tag
+            v-if="scope.row.tbBorrow.state === 3">
+          已归还
+        </el-tag>
       </template>
     </el-table-column>
   </el-table>

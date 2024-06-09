@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,8 +32,7 @@ public class AdminServiceImpl implements AdminService {
     public Result getBorrowList() {
         //获取申请列表
         LambdaQueryWrapper<TbBorrow> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(TbBorrow::getState, 0)
-                .eq(TbBorrow::getDeleteFlag, 0);
+        lambdaQueryWrapper.in(TbBorrow::getDeleteFlag, 0,1);
         List<TbBorrow> tbBorrowList = tbBorrowMapper.selectList(lambdaQueryWrapper);
         List<TbBorrowWrapper> list = new ArrayList<>();
         //将TbBorrow封装为tbBorrowWrapper
@@ -61,6 +61,7 @@ public class AdminServiceImpl implements AdminService {
         if (tbBorrow.getState() == 1){
             //更新借书表
             tbBorrow.setCheckedTime(LocalDateTime.now());
+            tbBorrow.setDeleteFlag(1);
             tbBorrowMapper.updateById(tbBorrow);
             User user = userMapper.selectById(tbBorrow.getUserId());
             //用户最大可借书数-1
@@ -78,16 +79,21 @@ public class AdminServiceImpl implements AdminService {
         } else if (tbBorrow.getState() == 2){
             //更新借书表
             tbBorrow.setCheckedTime(LocalDateTime.now());
+            tbBorrow.setDeleteFlag(1);
             tbBorrowMapper.updateById(tbBorrow);
             return new Result(200,"拒绝处理成功");
         } else if(tbBorrow.getState() == 3){
             //处理还书的逻辑
             //更新借书表
             tbBorrow.setCheckedTime(LocalDateTime.now());
+            tbBorrow.setDeleteFlag(1);
             tbBorrowMapper.updateById(tbBorrow);
             User user = userMapper.selectById(tbBorrow.getUserId());
-            //用户最大可借书数+1
+            //用户最大可借书数+1，并且修改用户的needToPay
             user.setMaxBorrow(user.getMaxBorrow()+1);
+            LocalDateTime now = LocalDateTime.now();
+            long daysBetween = ChronoUnit.DAYS.between(tbBorrow.getCheckedTime(), now);
+            user.setNeedToPay((int) (user.getNeedToPay() + daysBetween * 0.5));
             userMapper.updateById(user);
             //更新具体书的状态
             bookMapper.updateBookIdentifier(tbBorrow.getBookId(),tbBorrow.getBookIdentifier(),0);
@@ -95,5 +101,45 @@ public class AdminServiceImpl implements AdminService {
         } else {
             return new Result(400,"未知错误");
         }
+    }
+
+    @Override
+    public Result getUserList(Integer userId, Integer currentPage, Integer pageSize) {
+        Page<User> page = new Page<>(currentPage,pageSize);
+        LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        if (userId != null){
+            lambdaQueryWrapper.eq(User::getId,userId)
+                    .eq(User::getDeleted,0);
+        } else {
+            lambdaQueryWrapper.eq(User::getDeleted,0);
+        }
+        userMapper.selectPage(page,lambdaQueryWrapper);
+        return new Result(200,"获取用户列表成功",page);
+    }
+
+    @Override
+    public Result banUser(Integer userId) {
+        if (userMapper.deleteById(userId) == 1){
+            return new Result(200,"封禁用户成功");
+        }else{
+            return new Result(400,"未知错误");
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Result updateUser(Integer id, String realName, String address, String phoneNumber, String idCardNumber) {
+        //首先更新用户实名信息
+        LambdaUpdateWrapper<User> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+        lambdaUpdateWrapper.eq(User::getId,id);
+        User user = userMapper.selectById(id);
+        user.setRealName(realName);
+        user.setAddress(address);
+        user.setPhoneNumber(phoneNumber);
+        user.setIdCardNumber(idCardNumber);
+        userMapper.update(user,lambdaUpdateWrapper);
+        //修改角色为已实名用户
+        userMapper.setAuthenticatedUser(id);
+        return new Result(200,"用户实名认证成功");
     }
 }

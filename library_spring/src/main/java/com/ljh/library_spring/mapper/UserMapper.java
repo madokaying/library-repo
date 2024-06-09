@@ -14,4 +14,5 @@ public interface UserMapper extends BaseMapper<User> {
     //根据用户ID获取用户的角色
     String getRoleByUserId(Long userid);
 
+    Boolean setAuthenticatedUser(Integer id);
 }

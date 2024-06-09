@@ -119,5 +119,26 @@ public class BookController {
         return bookService.updateBook(file, bookId, bookName, bookAuthor, bookSummary, publisher, physicalBookPrice);
     }
 
+    @PreAuthorize("hasAnyAuthority('admin')")
+    @PostMapping("/addBook")
+    public Result addBook(
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam("bookName") String bookName,
+            @RequestParam("bookAuthor") String bookAuthor,
+            @RequestParam("bookSummary") String bookSummary,
+            @RequestParam("publisher") String publisher,
+            @RequestParam("physicalBookPrice") Double physicalBookPrice
+    ){
+        return bookService.addBook(file, bookName, bookAuthor, bookSummary, publisher, physicalBookPrice);
+    }
 
+    @PostMapping("/getBooksByAuthor")
+    public Result getBooksByAuthor(String author,Integer currentPage,Integer pageSize){
+        return bookService.getBooksByAuthor(author,currentPage,pageSize);
+    }
+
+    @PostMapping("/getBooksByBookId")
+    public Result getBooksByBookId(Integer bookId,Integer currentPage,Integer pageSize){
+        return bookService.getBooksByBookId(bookId,currentPage,pageSize);
+    }
 }

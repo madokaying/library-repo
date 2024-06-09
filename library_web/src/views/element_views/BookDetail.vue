@@ -61,7 +61,7 @@
             <p>{{book.bookSummary}}</p>
             <p style="text-align: left;margin-left: 22px">
               热度:
-              <span style="font-size: 20px;margin-right: 5px">{{borrowTimes}}</span><span style="font-size: 15px;color: gray;margin-right: 10px">借阅</span>
+              <span style="font-size: 20px;margin-right: 5px">{{book.borrowedTimes}}</span><span style="font-size: 15px;color: gray;margin-right: 10px">借阅</span>
               <span style="font-size: 20px;margin-right: 5px">{{collectTimes}}</span><span style="font-size: 15px;color: gray;margin-right: 10px">收藏</span>
             </p>
             <p style="text-align: left;margin-left: 22px">
@@ -139,7 +139,7 @@ export default {
     return {
       book: Object,
       tags: [],
-      borrowTimes: 0,/*借阅次数*/
+      borrowedTimes: 0,/*借阅次数*/
       collectTimes: 0,/*收藏次数*/
       selectedItem: 1,/*判断是否选中的flag*/
       tableOfContents: [],/*书籍的目录信息*/

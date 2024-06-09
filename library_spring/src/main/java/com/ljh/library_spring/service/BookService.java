@@ -77,4 +77,10 @@ public interface BookService {
 
 
     Result updateBook(MultipartFile file, Integer bookId, String bookName, String bookAuthor, String bookSummary, String publisher, Double physicalBookPrice);
+
+    Result getBooksByAuthor(String author, Integer currentPage, Integer pageSize);
+
+    Result getBooksByBookId(Integer bookId, Integer currentPage, Integer pageSize);
+
+    Result addBook(MultipartFile file, String bookName, String bookAuthor, String bookSummary, String publisher, Double physicalBookPrice);
 }

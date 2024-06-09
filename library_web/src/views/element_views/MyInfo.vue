@@ -43,7 +43,7 @@
           <i class="el-icon-s-help"></i>
           {{ userInfo.role }}
         </span>
-        <span class="my-role" v-else-if="userInfo.role === '实名用户'" style="background-color: #2eff1d;color: white;border-radius: 6px;padding: 2px 8px">
+        <span class="my-role" v-else-if="userInfo.role === '实名用户'" style="background-color: rgba(108,167,255,0.75);color: white;border-radius: 6px;padding: 2px 8px">
           {{ userInfo.role }}
           <i class="el-icon-circle-check"></i>
         </span>
@@ -229,7 +229,7 @@
           </div>
 
           <div v-if="units === 'manageUser'">
-
+            <admin-manage-user></admin-manage-user>
           </div>
 
           <div v-if="units === 'manageComment'">
@@ -244,7 +244,7 @@
 
           </div>
           <div v-if="units === 'dataVisualization'">
-
+            <data-visualization></data-visualization>
           </div>
         </el-col>
       </el-row>
@@ -297,6 +297,8 @@ import MyCollectBook from "@/views/element_views/menu/MyCollectBook.vue";
 import MyLibrary from "@/views/element_views/menu/MyLibrary.vue";
 import AdminManageBorrowList from "@/views/admin/AdminManageBorrowList.vue";
 import AdminManageBookList from "@/views/admin/AdminManageBook.vue";
+import AdminManageUser from "@/views/admin/AdminManegeUser.vue";
+import DataVisualization from "@/views/admin/DataVisualization.vue";
 
 export default {
   name: "MyInfo",
@@ -304,6 +306,8 @@ export default {
     'units',
   ],
   components: {
+    DataVisualization,
+    AdminManageUser,
     AdminManageBookList,
     AdminManageBorrowList,
     MyLibrary,
@@ -476,10 +480,20 @@ export default {
       this.$router.push({name: 'myInfo', params: {units: 'manageBook'}});
     },
     toManageComment(){
-      this.$router.push({name: 'myInfo', params: {units: 'manageComment'}});
+      this.$notify({
+        title: '摸鱼',
+        message: '反正没有分，不写了',
+        showClose: false
+      });
+      //this.$router.push({name: 'myInfo', params: {units: 'manageComment'}});
     },
     toManagePost(){
-      this.$router.push({name: 'myInfo', params: {units: 'managePost'}});
+      this.$notify({
+        title: '抱歉',
+        message: '该功能仍在施工中，尚未对外开放...',
+        showClose: false
+      });
+      //this.$router.push({name: 'myInfo', params: {units: 'managePost'}});
     },
     toManageUser(){
       this.$router.push({name: 'myInfo', params: {units: 'manageUser'}});

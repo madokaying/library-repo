@@ -225,6 +225,7 @@ public class UserServiceImpl implements UserService {
         LambdaQueryWrapper<TbBorrow> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         //0和1都属于不可再借的状态,2和3则可以借
         lambdaQueryWrapper.eq(TbBorrow::getBookId,bookId)
+                .eq(TbBorrow::getDeleteFlag,0)
                 .eq(TbBorrow::getUserId,userId);
         TbBorrow tbBorrow = tbBorrowMapper.selectOne(lambdaQueryWrapper);
         if (tbBorrow == null){

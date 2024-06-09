@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -262,5 +263,55 @@ public class BookServiceImpl implements BookService {
             }
             return new Result(200,"更新图书成功");
         }
+    }
+
+    @Override
+    public Result getBooksByAuthor(String author, Integer currentPage, Integer pageSize) {
+        Page<TbBook> page = new Page<>(currentPage,pageSize);
+        LambdaQueryWrapper<TbBook> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.like(TbBook::getBookAuthor,author)
+                .eq(TbBook::getDeleted,0);
+        bookMapper.selectPage(page,lambdaQueryWrapper);
+        return new Result(200,"获取作者图书成功",page);
+    }
+
+    @Override
+    public Result getBooksByBookId(Integer bookId, Integer currentPage, Integer pageSize) {
+        Page<TbBook> page = new Page<>(currentPage,pageSize);
+        LambdaQueryWrapper<TbBook> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(TbBook::getBookId,bookId)
+                .eq(TbBook::getDeleted,0);
+        bookMapper.selectPage(page,lambdaQueryWrapper);
+        return new Result(200,"获取图书成功",page);
+    }
+
+    @Override
+    public Result addBook(MultipartFile file, String bookName, String bookAuthor, String bookSummary, String publisher, Double physicalBookPrice) {
+        TbBook book = new TbBook();
+        book.setBookName(bookName);
+        book.setBookAuthor(bookAuthor);
+        book.setBookSummary(bookSummary);
+        book.setPublisher(publisher);
+        book.setPhysicalBookPrice(BigDecimal.valueOf(physicalBookPrice));
+        int result = bookMapper.insert(book);
+        if (result == 1){
+            //若插入成功，则bookId已自动生成，再根据bookId生成cover地址
+            String bookCover = book.getBookId() + ".jpg";
+            String coverPath = imgSRC + "cover/" + bookCover;
+            book.setBookCover(coverPath);
+            bookMapper.updateById(book);
+            //有图存图，无图算球
+            if (file != null){
+                //将文件保存指定目录
+                try{
+                    String realCoverPath = coverPath.replaceAll(imgSRC,imgURL);
+                    file.transferTo(new File(realCoverPath));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            return new Result(200,"添加图书成功");
+        }
+        return new Result(400,"添加图书失败");
     }
 }

@@ -19,6 +19,6 @@ public class TbBorrow {
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdTime;
     private LocalDateTime checkedTime;
-    @TableLogic
+    //@TableLogic
     private Integer deleteFlag;
 }

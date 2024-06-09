@@ -152,7 +152,6 @@
             tb_book b
                 LEFT JOIN tb_borrow tb ON b.book_id =tb.book_id
         WHERE tb.user_id = #{userId}
-        AND tb.delete_flag = 0
         AND b.deleted = 0
         AND tb.state = 1
     </select>

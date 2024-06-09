@@ -164,6 +164,25 @@ export default {
     }
   },
   methods: {
+    //获取基本信息
+    getMyRealInfo(){
+      const UID = JSON.parse(localStorage.getItem('userInfo')).UID;
+      http.post(`/user/getUserInfoByUID?UID=${UID}`).then(res => {
+        if (res.data.code === 200){
+          this.otherInfo.realName = res.data.data.realName;
+          this.otherInfo.address = res.data.data.address;
+          this.otherInfo.phoneNumber = res.data.data.phoneNumber;
+          this.otherInfo.maxBorrow = res.data.data.maxBorrow;
+          this.otherInfo.needToPay = res.data.data.needToPay;
+        } else {
+          this.$message({
+            message: '获取个人信息失败',
+            type: 'error',
+            duration: '2000',
+          });
+        }
+      })
+    },
     //修改密码
     changePassword() {
       this.$refs['editPasswordForm'].validate((valid) => {
@@ -229,6 +248,9 @@ export default {
       this.personalInfoForm.email = JSON.parse(localStorage.getItem('userInfo')).email;
     },
   },
+  mounted() {
+    this.getMyRealInfo();
+  }
 }
 </script>
 
